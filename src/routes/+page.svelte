@@ -11,6 +11,9 @@
 		display: grid;
 		place-items: center;
 		min-height: 100dvh;
+		background-color: var(--rsb-surface-base);
+		color: var(--rsb-text-primary);
+		font-family: var(--rsb-font-family-body);
 	}
 
 	h1 {

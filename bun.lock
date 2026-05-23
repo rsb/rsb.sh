@@ -5,14 +5,15 @@
     "": {
       "name": "rsb-sh",
       "devDependencies": {
+        "@rsb/tokens": "0.0.4",
         "@sveltejs/adapter-cloudflare": "7.2.8",
-        "@sveltejs/kit": "^2.57.0",
-        "@sveltejs/vite-plugin-svelte": "^7.0.0",
+        "@sveltejs/kit": "2.61.0",
+        "@sveltejs/vite-plugin-svelte": "7.1.2",
         "@types/node": "25.9.1",
-        "svelte": "^5.55.2",
-        "svelte-check": "^4.4.6",
-        "typescript": "^6.0.2",
-        "vite": "^8.0.7",
+        "svelte": "5.55.9",
+        "svelte-check": "4.4.8",
+        "typescript": "6.0.3",
+        "vite": "8.0.14",
       },
     },
   },
@@ -196,6 +197,8 @@
     "@rolldown/binding-win32-x64-msvc": ["@rolldown/binding-win32-x64-msvc@1.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-v7qRI7gXLRINcOGXt+7YmAZ6iFuyZVMIoXAxhd8oP+DR9dLfL9GfNIx7PLMxmhZdvq8waUJBQiWN9EKNy+TRBQ=="],
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.1", "", {}, "sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw=="],
+
+    "@rsb/tokens": ["@rsb/tokens@0.0.4", "https://npm.pkg.github.com/download/@rsb/tokens/0.0.4/4cc5853552c2818b12f855920cf338ec9391d6b0", {}, "sha512-3XzCfo+lvNkHLfFP5g1JJJjhv+TslHzJORZ4wqe6Jb0XVjvcItWAdM/IBPKgUaqZLYyFFsKotG2RXbiHrSNNpw=="],
 
     "@sindresorhus/is": ["@sindresorhus/is@7.2.0", "", {}, "sha512-P1Cz1dWaFfR4IR+U13mqqiGsLFf1KbayybWwdd2vfctdV6hDpUkgCY0nKOLLTMSoRd/jJNjtbqzf13K8DCCXQw=="],
 
