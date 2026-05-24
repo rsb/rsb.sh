@@ -1,3 +1,14 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	let contactAnchor: HTMLAnchorElement;
+
+	onMount(() => {
+		const p = ['\x63\x6f\x6e\x74\x61\x63\x74', '\x72\x73\x62\x2e\x73\x68'];
+		contactAnchor.href = `mailto:${p[0]}@${p[1]}`;
+	});
+</script>
+
 <svelte:head>
 	<title>rsb.sh</title>
 	<meta name="description" content="Open-source tools for the creative industry, built by Robert Scott-Buccleuch." />
@@ -21,7 +32,7 @@
 			<a href="/writing">Writing</a>
 			<a href="https://github.com/rsb">Code</a>
 			<a href="https://rsb.ink">About me</a>
-			<a href="mailto:contact@rsb.sh">Contact</a>
+			<a href="#" bind:this={contactAnchor}>Contact</a>
 		</nav>
 
 		<p class="wip">
