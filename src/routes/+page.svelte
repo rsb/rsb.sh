@@ -32,7 +32,7 @@
 			<a href="/writing">Writing</a>
 			<a href="https://github.com/rsb">Code</a>
 			<a href="https://rsb.ink">About me</a>
-			<a href="#" bind:this={contactAnchor}>Contact</a>
+			<a href="/contact" bind:this={contactAnchor}>Contact</a>
 		</nav>
 
 		<p class="wip">
