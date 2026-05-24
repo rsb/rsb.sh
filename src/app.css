@@ -1,3 +1,46 @@
+@font-face {
+	font-family: 'Inter';
+	src: url('/fonts/Inter-Variable.woff2') format('woff2');
+	font-weight: 300 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'JetBrains Mono';
+	src: url('/fonts/JetBrainsMono-Variable.woff2') format('woff2');
+	font-weight: 400 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+:root {
+	--page-bg: #F5F0EA;
+	--page-text: #1A1714;
+	--page-text-secondary: #6E6459;
+	--page-border: #DDD6CC;
+	--page-code-bg: #EDE8E1;
+	--page-link: #1A1714;
+	--page-link-accent: #8B7355;
+
+	--article-width: 680px;
+	--site-padding: 1.5rem;
+}
+
+html {
+	-webkit-font-smoothing: antialiased;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	background-color: var(--page-bg);
+	color: var(--page-text);
+	font-family: 'Inter', system-ui, sans-serif;
+	font-size: 1.125rem;
+	line-height: 1.65;
+}
+
 .contents {
 	display: contents;
 }
