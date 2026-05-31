@@ -1,18 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-
-// Security headers applied to on-demand (SSR) responses. Prerendered static
-// assets are covered separately by public/_headers (Cloudflare serves those
-// directly from the assets layer, so middleware never runs for them).
-const SECURITY_HEADERS: Record<string, string> = {
-  "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
-  "X-Frame-Options": "DENY",
-  "X-Content-Type-Options": "nosniff",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy":
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), autoplay=(), display-capture=()",
-  "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-  "X-XSS-Protection": "0",
-};
+import { SECURITY_HEADERS } from "./security-headers";
 
 // Subdomain host routing over one editorial build (IA doc §4): adrs.rsb.sh and
 // standards.rsb.sh are served from this same project, mapped onto the /adrs and
@@ -27,20 +14,36 @@ const HOST_ROUTES: Record<string, string> = {
   standards: "/standards",
 };
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  const subdomain = context.url.hostname.split(".")[0];
-  const prefix = HOST_ROUTES[subdomain];
-
-  let response: Response;
-  if (prefix && !context.url.pathname.startsWith(prefix)) {
-    const rest = context.url.pathname === "/" ? "" : context.url.pathname;
-    response = await next(prefix + rest);
-  } else {
-    response = await next();
-  }
-
+function applySecurityHeaders(response: Response): Response {
   for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
     response.headers.set(header, value);
   }
   return response;
+}
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const subdomain = context.url.hostname.split(".")[0];
+  const prefix = HOST_ROUTES[subdomain];
+  const { pathname } = context.url;
+
+  // Match the subtree exactly ("/adrs") or as a path segment ("/adrs/..."), so
+  // sibling paths like "/adrsfoo" are still rewritten rather than slipping
+  // through as already-scoped. The guard also prevents re-prefixing on the
+  // rewritten request (its pathname already starts with the prefix).
+  const alreadyScoped =
+    !!prefix && (pathname === prefix || pathname.startsWith(`${prefix}/`));
+
+  try {
+    if (prefix && !alreadyScoped) {
+      const rest = pathname === "/" ? "" : pathname;
+      return applySecurityHeaders(await next(prefix + rest));
+    }
+    return applySecurityHeaders(await next());
+  } catch (error) {
+    // Even when downstream throws, don't leak a response without the headers.
+    if (error instanceof Response) {
+      return applySecurityHeaders(error);
+    }
+    throw error;
+  }
 });

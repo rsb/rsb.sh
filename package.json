@@ -5,9 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "bun scripts/gen-headers.ts",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "gen:headers": "bun scripts/gen-headers.ts"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.6.0",

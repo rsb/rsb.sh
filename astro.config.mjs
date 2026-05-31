@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, sessionDrivers } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -13,6 +13,17 @@ export default defineConfig({
   // with sharp) and avoids the runtime Cloudflare Images binding — launch
   // artifacts §5: build-time pipeline, no Cloudflare Images.
   adapter: cloudflare({ imageService: "compile" }),
+  // The Cloudflare adapter defaults to a KV-backed session store and emits a
+  // `SESSION` KV binding. This site uses no sessions; configuring any non-KV
+  // driver opts out so no unprovisioned binding reaches `wrangler deploy`. The
+  // in-memory LRU driver pulls no bindings or node deps and is never actually
+  // exercised (nothing reads Astro.session).
+  session: { driver: sessionDrivers.lruCache() },
+  build: {
+    // Force all CSS into external stylesheets (no inlined <style>), so the CSP
+    // in src/security-headers.ts needs no `style-src 'unsafe-inline'`.
+    inlineStylesheets: "never",
+  },
   vite: {
     plugins: [tailwindcss()],
   },
