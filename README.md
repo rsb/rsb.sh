@@ -1,24 +1,28 @@
 # rsb.sh
 
-rsb.sh is the landing page for the RSB body of work. It is where a visitor arrives to understand what the body of work is, why it exists, what holds it together, and how the projects within it relate to each other. The site is part publication and part map — it carries the long-form writing that explains the worldview behind the projects, and it serves as the index that points outward to where each project's code and documentation actually live.
+rsb.sh is the public web property for the RSB body of work. It is where a visitor arrives to understand what the body of work is, why it exists, what holds it together, and how the projects within it relate to each other. The site is part publication and part map — it carries the long-form writing and the living architecture reference, and it serves as the index that points outward to where each project's code and documentation actually live.
 
 ## How the site is built
 
-The site is a SvelteKit application deployed to Cloudflare Pages. It consumes the Lumen design system (`@rsb/tokens`, `@rsb/primitives`, `@rsb/ui` from GitHub Packages) for its visual and interactive identity, so what appears on rsb.sh shares its vocabulary with every other RSB site. Content is authored in markdown and processed through the SvelteKit pipeline at build time. The repository contains the application that renders the site; it does not contain the content of every project's deeper documentation, which lives wherever each project's documentation makes sense — in its repository, in dedicated documentation, or on a future subdomain.
+The site is an [Astro](https://astro.build) application styled with [Tailwind CSS](https://tailwindcss.com) v4 and deployed to Cloudflare Workers (Workers Static Assets). Fonts (Inter and JetBrains Mono) are self-hosted as woff2 — no CDN font requests, no third-party analytics, no off-origin calls on load.
+
+Most pages are prerendered to static HTML at build time. A small on-demand layer handles **subdomain host routing**: `adrs.rsb.sh` and `standards.rsb.sh` are served from this same build via `src/middleware.ts`, which maps each host onto the `/adrs` and `/standards` route subtrees so their public origins stay clean. (`docs.rsb.sh` is a separate, monorepo-generated Pages project and is not part of this repository.)
+
+Content is authored in markdown / MDX and processed through Astro's content collections at build time. The repository contains the application that renders the site; it does not contain the content of every project's deeper documentation, which lives wherever each project's documentation makes sense — in its repository, in dedicated documentation, or on `docs.rsb.sh`.
 
 ## Content and code
 
-The application code in this repository is licensed under MIT or Apache 2.0, consistent with the rest of the work at [github.com/rsb](https://github.com/rsb). This covers the SvelteKit scaffolding, the layouts, the components specific to the site, and the build infrastructure.
+The application code in this repository is licensed under MIT or Apache 2.0, consistent with the rest of the work at [github.com/rsb](https://github.com/rsb). This covers the Astro scaffolding, the layouts, the components specific to the site, and the build infrastructure.
 
-The written content on the site — the essays, the pillars, the position pieces, the project descriptions, the blog posts — is licensed under [Creative Commons BY-NC 4.0](LICENSE-CC). This allows the writing to be quoted, shared, translated, and referenced freely with attribution, while reserving commercial republication and use. The content is creative work and the licensing reflects that; the license file in the repository covers the application code, and the CC license covers the writing.
+The written content on the site — the essays, the architecture reference, the decisions and standards — is licensed under [Creative Commons BY-NC 4.0](LICENSE-CC). This allows the writing to be quoted, shared, translated, and referenced freely with attribution, while reserving commercial republication and use.
 
 ## Development
 
-The repository uses Bun. To work on the site locally, clone the repository and install dependencies with `bun install --frozen-lockfile`. The development server runs with `bun run dev`. The site can be built for production with `bun run build` and previewed locally with `bun run preview`.
+The repository uses Bun. To work on the site locally, clone the repository and install dependencies with `bun install --frozen-lockfile`. The development server runs with `bun run dev`. The site can be built for production with `bun run build` and previewed locally with `bun run preview`. Type and content checks run with `bun run check`.
 
-Content lives under `content/`, organized by section. New essays, blog posts, and project pages are added as markdown files in the appropriate directory; the build pipeline picks them up automatically. The conventions for frontmatter and content structure are documented under `docs/` in the repository.
+Subdomain host routing keys off the request hostname, so in local development everything resolves to the root site. To exercise the `adrs.`/`standards.` surfaces locally, visit the `/adrs` and `/standards` paths directly, or send a matching `Host` header.
 
-Deploys happen through GitHub Actions on every push to `main`. The workflow builds the site and publishes the result to Cloudflare Pages, which serves rsb.sh at the apex domain.
+Deploys happen through GitHub Actions on every push to `main`. The workflow builds the site and publishes the result with `wrangler deploy`, which serves rsb.sh at the apex domain.
 
 ## License and links
 

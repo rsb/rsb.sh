@@ -1,0 +1,14 @@
+# GENERATED from src/security-headers.ts by scripts/gen-headers.ts.
+# Do not edit by hand — run `bun run build` (or `bun scripts/gen-headers.ts`).
+# Applies the same security headers as src/middleware.ts to static
+# (prerendered) responses, which Cloudflare serves from the assets layer
+# without invoking the worker.
+/*
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), autoplay=(), display-capture=()
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  X-XSS-Protection: 0

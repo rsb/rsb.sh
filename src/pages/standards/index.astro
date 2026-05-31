@@ -1,0 +1,16 @@
+---
+import Base from "../../layouts/Base.astro";
+
+// Served at standards.rsb.sh via host routing (src/middleware.ts rewrites that
+// host onto /standards/*). On-demand so the rewrite runs at request time.
+// Becomes the `standards` content collection (plain markdown, required
+// `sourceAdr` reference, corpus-versioned) per launch-artifacts §3.
+export const prerender = false;
+---
+
+<Base title="Standards — rsb.sh">
+  <h1 class="text-3xl font-semibold tracking-tight">Standards</h1>
+  <p class="mt-4 text-neutral-600">
+    Normative rules driven by accepted decisions. None published yet.
+  </p>
+</Base>
