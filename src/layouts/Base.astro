@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { canonicalUrl } from "../host-routes";
 
 interface Props {
   title?: string;
@@ -10,6 +11,11 @@ const {
   title = "rsb.sh",
   description = "Open-source tools for the creative industry, built by Robert Scott-Buccleuch.",
 } = Astro.props;
+
+// Canonical URL: collapses the same content resolving under www., the apex, and
+// the prerendered-leak on the adrs./standards. subdomains to one indexable URL.
+const site = Astro.site ?? new URL("https://rsb.sh");
+const canonical = canonicalUrl(Astro.url.pathname, site);
 
 // Stub navigation, honest about what exists at launch (launch-artifacts §6):
 // Architecture is the deepest surface; ADRs + standards are folded into one
@@ -30,6 +36,7 @@ const nav = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={canonical} />
     <title>{title}</title>
     <meta name="description" content={description} />
   </head>

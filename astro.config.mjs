@@ -1,7 +1,13 @@
 // @ts-check
 import { defineConfig, sessionDrivers } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
+import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { HOST_ROUTES } from "./src/host-routes.ts";
+
+// Host-routed subtrees ("/adrs", "/standards") are served on their own
+// subdomains; their internal apex paths must not appear in the apex sitemap.
+const HOST_ROUTE_PREFIXES = Object.values(HOST_ROUTES);
 
 // Default output is 'static': pages are prerendered unless they opt out with
 // `export const prerender = false`. The Cloudflare adapter renders those
@@ -24,6 +30,20 @@ export default defineConfig({
     // in src/security-headers.ts needs no `style-src 'unsafe-inline'`.
     inlineStylesheets: "never",
   },
+  // Sitemap covers the apex editorial routes only. The host-routed
+  // adrs./standards. pages live on their own subdomains and grow their own
+  // sitemaps when those collections land, so their internal apex paths are
+  // filtered out here. robots.txt points at the index.
+  integrations: [
+    sitemap({
+      filter: (page) => {
+        const { pathname } = new URL(page);
+        return !HOST_ROUTE_PREFIXES.some(
+          (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+        );
+      },
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

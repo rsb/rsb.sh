@@ -1,18 +1,16 @@
 import { defineMiddleware } from "astro:middleware";
 import { SECURITY_HEADERS } from "./security-headers";
+import { HOST_ROUTES } from "./host-routes";
 
 // Subdomain host routing over one editorial build (IA doc §4): adrs.rsb.sh and
-// standards.rsb.sh are served from this same project, mapped onto the /adrs and
-// /standards route subtrees so their public origins stay clean
-// (adrs.rsb.sh/adr/NNNN-slug/, not rsb.sh/adrs/...). Only docs.rsb.sh is a
-// separate, monorepo-generated Pages project — not handled here.
+// standards.rsb.sh are served from this same project, mapped (via HOST_ROUTES,
+// shared with the canonical-URL helper) onto the /adrs and /standards route
+// subtrees so their public origins stay clean (adrs.rsb.sh/adr/NNNN-slug/, not
+// rsb.sh/adrs/...). Only docs.rsb.sh is a separate, monorepo-generated Pages
+// project — not handled here.
 //
 // The entry pages for these hosts (and the root "/") must be on-demand
 // (`export const prerender = false`) so this middleware runs at request time.
-const HOST_ROUTES: Record<string, string> = {
-  adrs: "/adrs",
-  standards: "/standards",
-};
 
 function applySecurityHeaders(response: Response): Response {
   for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
