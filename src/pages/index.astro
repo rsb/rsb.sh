@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+
+// On-demand so middleware host routing (src/middleware.ts) can branch on the
+// request host: adrs./standards. enter through "/" and get rewritten.
+export const prerender = false;
+---
+
+<Base>
+  <h1 class="text-3xl font-semibold tracking-tight text-balance">
+    Open-source tools for the creative industry.
+  </h1>
+</Base>

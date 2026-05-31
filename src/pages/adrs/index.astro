@@ -1,0 +1,16 @@
+---
+import Base from "../../layouts/Base.astro";
+
+// Served at adrs.rsb.sh via host routing (src/middleware.ts rewrites that host
+// onto /adrs/*). On-demand so the rewrite runs at request time. Becomes the
+// `adrs` content collection (plain markdown, immutable, supersession + standards
+// backlinks) per launch-artifacts §3.
+export const prerender = false;
+---
+
+<Base title="Decisions (ADRs) — rsb.sh">
+  <h1 class="text-3xl font-semibold tracking-tight">Decisions (ADRs)</h1>
+  <p class="mt-4 text-neutral-600">
+    Architecture decision records for the RSB ecosystem. None published yet.
+  </p>
+</Base>
