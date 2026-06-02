@@ -12,8 +12,9 @@ const {
   description = "Open-source tools for the creative industry, built by Robert Scott-Buccleuch.",
 } = Astro.props;
 
-// Canonical URL: collapses the same content resolving under www., the apex, and
-// the prerendered-leak on the adrs./standards. subdomains to one indexable URL.
+// Canonical URL: collapses duplicate origins to one indexable URL — www. to the
+// apex, and the host-routed /adrs|/standards subtree (also reachable via its
+// internal apex path) to its real subdomain origin.
 const site = Astro.site ?? new URL("https://rsb.sh");
 const canonical = canonicalUrl(Astro.url.pathname, site);
 

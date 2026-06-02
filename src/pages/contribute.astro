@@ -2,7 +2,18 @@
 import Base from "../layouts/Base.astro";
 
 // Stub. A single editorial-support page (not a collection).
-export const prerender = true;
+//
+// On-demand (not prerendered) so the host-routing middleware runs for it (issue
+// #2). A prerendered page is served straight from the static-assets layer — the
+// adapter short-circuits it before middleware — so it would leak onto the
+// adrs./standards. subdomains as a 200. As an on-demand route, middleware sees the
+// request: on the apex it renders here; on a host-routed subdomain it rewrites into
+// the /adrs|/standards subtree, which has no such route, so it 404s.
+export const prerender = false;
+
+// Edge-cacheable like the adrs./standards. landings, so dropping prerender does not
+// turn this stable stub into an uncached origin hit.
+Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
 <Base title="Contribute — rsb.sh">
