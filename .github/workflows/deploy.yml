@@ -10,16 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      deployments: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: 1.3.5
       - run: bun install --frozen-lockfile
       - run: bun run build
-      - uses: cloudflare/wrangler-action@v3
+      - uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
         with:
+          # Pin the CLI to the version locked in bun.lock (transitive via
+          # @astrojs/cloudflare), so the wrangler that generates
+          # dist/server/wrangler.json at build time matches the one that
+          # deploys it. SHA-pinning the action alone leaves wrangler floating.
+          wranglerVersion: "4.95.0"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # The adapter generates the deploy config (main + assets) under
