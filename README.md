@@ -22,6 +22,16 @@ The repository uses Bun. To work on the site locally, clone the repository and i
 
 Subdomain host routing keys off the request hostname, so in local development everything resolves to the root site. To exercise the `adrs.`/`standards.` surfaces locally, visit the `/adrs` and `/standards` paths directly, or send a matching `Host` header.
 
+The strict Content-Security-Policy cannot be enforced by the Vite dev server (it injects styles inline), so `bun run dev` renders the decision and standards pages unstyled. Verify those surfaces the way production serves them — a clean build plus preview:
+
+```sh
+rm -rf .astro node_modules/.astro dist
+bun run build && bun run preview
+# then open http://localhost:4321/adrs/  and  /standards/std/<id>/
+```
+
+The `rm -rf` matters when you have **deleted or renamed** content files: Astro's content-layer store under `.astro/` is incremental and does not always purge removed entries, so a stale entry can otherwise render as a "ghost" in a local build. `check:corpus` reads the markdown files directly and reports the true set even when the rendered store is stale — if the two disagree, clear the cache and rebuild. CI and deploy always build from a fresh checkout, so this never affects production.
+
 Deploys happen through GitHub Actions on every push to `main`. The workflow builds the site and publishes the result with `wrangler deploy`, which serves rsb.sh at the apex domain.
 
 ## License and links

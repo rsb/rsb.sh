@@ -3,6 +3,7 @@ import { defineConfig, sessionDrivers } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import rehypeSanitize from "rehype-sanitize";
 import { HOST_ROUTES } from "./src/host-routes.ts";
 
 // Host-routed subtrees ("/adrs", "/standards") are served on their own
@@ -29,6 +30,18 @@ export default defineConfig({
     // Force all CSS into external stylesheets (no inlined <style>), so the CSP
     // in src/security-headers.ts needs no `style-src 'unsafe-inline'`.
     inlineStylesheets: "never",
+  },
+  markdown: {
+    // Defense-in-depth for collection bodies: strip raw/dangerous HTML so content
+    // safety does not rest solely on the CSP. (An ADR is author-controlled, but if
+    // the CSP is ever relaxed this is what stops a `<script>` in markdown becoming
+    // stored XSS.) rehype-sanitize's default schema keeps standard prose markup —
+    // headings, lists, links, inline code, and `language-*` classes on code blocks.
+    rehypePlugins: [rehypeSanitize],
+    // Astro's default code highlighter (Shiki) emits inline `style` attributes,
+    // which our strict CSP (`style-src 'self'`, no 'unsafe-inline') blocks anyway.
+    // Disable it so fenced code renders as plain, CSP-clean `<pre><code>`.
+    syntaxHighlight: false,
   },
   // Sitemap covers the apex editorial routes only. The host-routed
   // adrs./standards. pages live on their own subdomains and grow their own

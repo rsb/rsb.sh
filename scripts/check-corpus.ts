@@ -1,8 +1,10 @@
 // Content-integrity checks for the adrs + standards collections.
 //
-// Zod (src/content.config.ts) validates each entry in isolation and `reference()`
-// guarantees a cited id EXISTS — but neither can see ACROSS entries. This script
-// enforces the cross-entry invariants that make the decision corpus coherent, and
+// Zod (src/content.config.ts) validates each entry in isolation — but it cannot see
+// ACROSS entries, and `reference()` does NOT guarantee a cited id exists at build:
+// content-layer references resolve lazily, so a dangling id builds clean and only
+// 404s at runtime. This script enforces the cross-entry invariants that make the
+// decision corpus coherent — including that every cited id actually resolves — and
 // FAILS THE BUILD when they break. Same pattern as scripts/gen-headers.ts: a Bun
 // script, run before `astro build` (see package.json `prebuild`/`check:corpus`).
 //
@@ -16,7 +18,7 @@ import { join } from "node:path";
 
 const ADRS_DIR = "src/content/adrs";
 const STANDARDS_DIR = "src/content/standards";
-const STD_ID = /^STD-[A-Z0-9-]+$/;
+const STD_ID = /^STD-[A-Z0-9]+(-[A-Z0-9]+)*$/; // STD-NAMING, STD-PUBLIC-API; rejects STD-, STD--X, STD-X-
 const ADR_NUMBERED_STEM = /^(\d+)-/; // accepted/deprecated filenames lead with the number
 
 const errors: string[] = [];
@@ -126,7 +128,64 @@ for (const std of standards) {
   }
 }
 
-// 6. (warn) Corpus coherence — flag mismatched corpusVersions across the set.
+// 6. Supersedes integrity — `reference("adrs")` enforces none of these:
+//    - every `supersedes` id resolves to a known ADR (else the detail page ships a
+//      broken /adr/<id> link that 404s in production);
+//    - no ADR supersedes itself;
+//    - at most ONE accepted/deprecated ADR supersedes a given ADR (the derived
+//      "superseded by" banner renders a single superseder, so two is ambiguous);
+//    - the supersedes graph has no cycles.
+const supersedersOf = new Map<string, string[]>(); // target id → non-draft superseder ids
+for (const adr of adrs) {
+  for (const ref of asIds(adr.data.supersedes)) {
+    if (ref === adr.id) {
+      errors.push(`adr ${adr.id}: supersedes itself`);
+      continue;
+    }
+    if (!adrById.has(ref)) {
+      errors.push(`adr ${adr.id}: supersedes "${ref}" but no such ADR`);
+      continue;
+    }
+    if (!isDraft(adr)) supersedersOf.set(ref, [...(supersedersOf.get(ref) ?? []), adr.id]);
+  }
+}
+for (const [target, supers] of supersedersOf) {
+  if (supers.length > 1) {
+    errors.push(`adr ${target}: superseded by more than one accepted/deprecated ADR (${supers.join(", ")})`);
+  }
+}
+
+// Cycle detection over the supersedes graph (self-edges are reported above and
+// excluded here). A cycle is a chain of decisions that supersedes back to its start.
+const supEdges = new Map<string, string[]>();
+for (const adr of adrs) {
+  supEdges.set(adr.id, asIds(adr.data.supersedes).filter((r) => r !== adr.id && adrById.has(r)));
+}
+const visiting = new Set<string>();
+const done = new Set<string>();
+const reportedCycles = new Set<string>();
+const walk = (node: string, path: string[]) => {
+  visiting.add(node);
+  for (const next of supEdges.get(node) ?? []) {
+    if (visiting.has(next)) {
+      const cycle = [...path.slice(path.indexOf(next)), next];
+      const key = [...cycle].sort().join("|");
+      if (!reportedCycles.has(key)) {
+        reportedCycles.add(key);
+        errors.push(`supersedes cycle: ${cycle.join(" → ")}`);
+      }
+    } else if (!done.has(next)) {
+      walk(next, [...path, next]);
+    }
+  }
+  visiting.delete(node);
+  done.add(node);
+};
+for (const adr of adrs) {
+  if (!done.has(adr.id)) walk(adr.id, [adr.id]);
+}
+
+// 7. (warn) Corpus coherence — flag mismatched corpusVersions across the set.
 //    A stopgap until corpus.json owns the canonical clock (out of scope here).
 const versions = new Set<number>();
 for (const e of [...adrs, ...standards]) {

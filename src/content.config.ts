@@ -8,6 +8,11 @@ import { z } from "astro/zod";
 // `reference("adrs")` resolves and what `/adr/[slug]` routes on), and a standard
 // `STD-NAMING.md` has id `STD-NAMING` (what crates cite, case-preserving through
 // canonicalUrl). No second identity namespace, no frontmatter `id` field.
+// Both collections are FLAT (non-recursive `[!_]*.md`): the entry id must equal a
+// bare filename stem so it matches the single-segment routes (`/adr/[slug]`,
+// `/std/[id]`) AND the flat directory scan in scripts/check-corpus.ts. A recursive
+// `**/` pattern would admit `sub/0002-foo` ids that the routes can't serve and the
+// integrity checker would silently skip — the loader and checker must agree.
 const keepStem = ({ entry }: { entry: string }) => entry.replace(/\.md$/i, "");
 
 const reversibility = z.enum(["bedrock", "hard-to-reverse", "reversible"]);
@@ -37,7 +42,7 @@ const numbered = (status: "accepted" | "deprecated") =>
 
 const adrs = defineCollection({
   loader: glob({
-    pattern: "**/[!_]*.md",
+    pattern: "[!_]*.md",
     base: "./src/content/adrs",
     generateId: keepStem,
   }),
@@ -55,7 +60,7 @@ const adrs = defineCollection({
 // invariants that Zod cannot express are enforced by scripts/check-corpus.ts.
 const standards = defineCollection({
   loader: glob({
-    pattern: "**/[!_]*.md",
+    pattern: "[!_]*.md",
     base: "./src/content/standards",
     generateId: keepStem,
   }),

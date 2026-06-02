@@ -3,19 +3,24 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "bun@1.3.5",
+  "engines": {
+    "bun": ">=1.3.5"
+  },
   "scripts": {
     "dev": "astro dev",
     "prebuild": "bun scripts/gen-headers.ts && bun scripts/check-corpus.ts",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "astro check && bun run check:corpus",
     "check:corpus": "bun scripts/check-corpus.ts",
     "gen:headers": "bun scripts/gen-headers.ts"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.6.0",
     "@astrojs/sitemap": "3.7.3",
-    "astro": "6.4.2"
+    "astro": "6.4.2",
+    "rehype-sanitize": "6.0.0"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
