@@ -1,16 +1,54 @@
 ---
-import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import DecisionLog from "../../layouts/DecisionLog.astro";
+import AdrSidebar from "../../components/AdrSidebar.astro";
 
-// Served at adrs.rsb.sh via host routing (src/middleware.ts rewrites that host
-// onto /adrs/*). On-demand so the rewrite runs at request time. Becomes the
-// `adrs` content collection (plain markdown, immutable, supersession + standards
-// backlinks) per launch-artifacts §3.
+// adrs.rsb.sh landing (ADR plan §5.6). On-demand so the host-routing middleware
+// runs. Short cache — it reflects the changing log (new ADRs, derived supersession).
 export const prerender = false;
+
+const all = await getCollection("adrs");
+const accepted = all.filter((a) => a.data.status === "accepted").length;
+const deprecated = all.filter((a) => a.data.status === "deprecated").length;
+const drafts = all.filter((a) => a.data.status === "draft").length;
+const empty = all.length === 0;
+
+Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
-<Base title="Decisions (ADRs) — rsb.sh">
-  <h1 class="text-3xl font-semibold tracking-tight">Decisions (ADRs)</h1>
-  <p class="mt-4 text-neutral-600">
-    Architecture decision records for the RSB ecosystem. None published yet.
+<DecisionLog
+  surface="Decisions"
+  title="Decisions (ADRs)"
+  description="Architecture decision records for the RSB ecosystem — the governing record of what was decided and why."
+>
+  <AdrSidebar slot="sidebar" />
+
+  <h1 class="text-2xl font-semibold tracking-tight">Decisions</h1>
+  <p class="mt-4 max-w-prose text-neutral-600">
+    Every load-bearing decision in the RSB ecosystem is recorded here as an
+    Architecture Decision Record: the context that forced it, the decision itself,
+    its consequences, and the alternatives that lost. Accepted ADRs carry a stable
+    number and drive the <a href="https://standards.rsb.sh" class="underline hover:no-underline">standards</a> that released code cites.
   </p>
-</Base>
+
+  {
+    empty ? (
+      <p class="mt-8 text-neutral-500">No decisions have been recorded yet.</p>
+    ) : (
+      <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-4 text-sm">
+        <div>
+          <dt class="text-neutral-500">Accepted</dt>
+          <dd class="text-2xl font-semibold tabular-nums">{accepted}</dd>
+        </div>
+        <div>
+          <dt class="text-neutral-500">Deprecated</dt>
+          <dd class="text-2xl font-semibold tabular-nums">{deprecated}</dd>
+        </div>
+        <div>
+          <dt class="text-neutral-500">Drafts</dt>
+          <dd class="text-2xl font-semibold tabular-nums">{drafts}</dd>
+        </div>
+      </dl>
+    )
+  }
+</DecisionLog>

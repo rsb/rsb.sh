@@ -5,10 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "bun scripts/gen-headers.ts",
+    "prebuild": "bun scripts/gen-headers.ts && bun scripts/check-corpus.ts",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "check:corpus": "bun scripts/check-corpus.ts",
     "gen:headers": "bun scripts/gen-headers.ts"
   },
   "dependencies": {

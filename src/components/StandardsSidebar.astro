@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+
+// The standards index rail (standards plan §5.2), passed into DecisionLog's
+// `sidebar` slot. Standards have no status/lifecycle — listed flat by id.
+const standards = (await getCollection("standards")).sort((a, b) => a.id.localeCompare(b.id));
+
+const current = Astro.url.pathname.replace(/\/$/, "").split("/").pop();
+---
+
+<p class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Standards</p>
+
+{
+  standards.length === 0 ? (
+    <p class="text-sm text-neutral-500">No standards published yet.</p>
+  ) : (
+    <ul class="space-y-1">
+      {standards.map((s) => {
+        const active = current === s.id;
+        return (
+          <li>
+            <a
+              href={`/std/${s.id}/`}
+              aria-current={active ? "page" : undefined}
+              class:list={[
+                "block rounded px-2 py-1.5 text-sm transition-colors hover:bg-neutral-100",
+                active ? "bg-neutral-100 font-medium text-neutral-900" : "text-neutral-700",
+              ]}
+            >
+              <span class="font-mono text-xs text-neutral-500">{s.id}</span> {s.data.title}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  )
+}
