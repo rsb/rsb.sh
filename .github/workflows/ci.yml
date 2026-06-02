@@ -17,3 +17,9 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run check
       - run: bun run build
+      # gen-headers.ts regenerates public/_headers in-place during prebuild, so a
+      # commit that edits security-headers.ts without the regenerated _headers
+      # would otherwise pass silently. Fail if the committed file drifted from its
+      # source of truth.
+      - name: Check public/_headers is not stale
+        run: git diff --exit-code public/_headers
