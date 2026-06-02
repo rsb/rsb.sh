@@ -20,8 +20,14 @@ const { Content } = await render(entry);
 // A draft may declare intent to supersede existing ADRs (schema allows it).
 const all = await getCollection("adrs");
 const byId = new Map(all.map((a) => [a.id, a]));
+const site = Astro.site ?? new URL("https://rsb.sh");
+// Absolute, pinned to the adrs. subdomain: this page is also reachable via the
+// non-canonical apex duplicate (rsb.sh/adrs/draft/…), where a host-relative
+// /adr/{id}/ would resolve against the apex and 404.
 const adrHref = (id: string) =>
-  byId.get(id)?.data.status === "draft" ? `/draft/${id}/` : `/adr/${id}/`;
+  byId.get(id)?.data.status === "draft"
+    ? `https://adrs.${site.host}/draft/${id}/`
+    : `https://adrs.${site.host}/adr/${id}/`;
 
 // Drafts change freely — do not cache.
 Astro.response.headers.set("Cache-Control", "no-store");
