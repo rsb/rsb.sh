@@ -1,0 +1,114 @@
+---
+import { getCollection } from "astro:content";
+
+// The ADR index rail (ADR plan §5.5), passed into DecisionLog's `sidebar` slot.
+// Accepted/deprecated ADRs lead, ordered by number; drafts follow in a quiet
+// group sorted by title (they have no number to sort on). A "superseded by
+// ADR-NNNN" marker is DERIVED by reverse-scanning `supersedes` — the old ADR is
+// never edited to mark itself.
+const all = await getCollection("adrs");
+
+const numbered = all
+  .filter((a) => a.data.status !== "draft")
+  .sort((a, b) => (a.data as { number: number }).number - (b.data as { number: number }).number);
+const drafts = all
+  .filter((a) => a.data.status === "draft")
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+// Reverse index: ADR id → number of the non-draft ADR that supersedes it. A draft
+// declaring `supersedes` does not count — supersession is real only once accepted.
+const supersededBy = new Map<string, number>();
+for (const adr of numbered) {
+  for (const ref of adr.data.supersedes ?? []) {
+    supersededBy.set(ref.id, (adr.data as { number: number }).number);
+  }
+}
+
+// Highlight the active entry by its id (the last path segment).
+const current = Astro.url.pathname.replace(/\/$/, "").split("/").pop();
+
+const reversibilityLabel: Record<string, string> = {
+  bedrock: "bedrock",
+  "hard-to-reverse": "hard to reverse",
+  reversible: "reversible",
+};
+
+const isEmpty = numbered.length === 0 && drafts.length === 0;
+---
+
+<p class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Decisions</p>
+
+{
+  isEmpty ? (
+    <p class="text-sm text-neutral-500">No decisions recorded yet.</p>
+  ) : (
+    <ul class="space-y-1">
+      {numbered.length > 0 &&
+        numbered.map((a) => {
+          const number = (a.data as { number: number }).number;
+          const sup = supersededBy.get(a.id);
+          const active = current === a.id;
+          return (
+            <li>
+              <a
+                href={`/adr/${a.id}/`}
+                aria-current={active ? "page" : undefined}
+                class:list={[
+                  "block rounded px-2 py-1.5 text-sm transition-colors hover:bg-neutral-100",
+                  active ? "bg-neutral-100 font-medium text-neutral-900" : "text-neutral-700",
+                ]}
+              >
+                <span class="font-mono text-xs text-neutral-500">
+                  ADR-{String(number).padStart(4, "0")}
+                </span>{" "}
+                {a.data.title}
+                <span class="mt-0.5 flex flex-wrap gap-1.5 text-[0.65rem] uppercase tracking-wide">
+                  {a.data.status === "deprecated" && (
+                    <span class="text-amber-700">deprecated</span>
+                  )}
+                  <span class="text-neutral-400">{reversibilityLabel[a.data.reversibility]}</span>
+                  {sup !== undefined && (
+                    <span class="text-neutral-500">
+                      superseded by ADR-{String(sup).padStart(4, "0")}
+                    </span>
+                  )}
+                </span>
+              </a>
+            </li>
+          );
+        })}
+
+      {drafts.length > 0 && (
+        <li class="pt-3">
+          <p class="mb-1 px-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+            Drafts
+          </p>
+          <ul class="space-y-1">
+            {drafts.map((a) => {
+              const active = current === a.id;
+              return (
+                <li>
+                  <a
+                    href={`/draft/${a.id}/`}
+                    aria-current={active ? "page" : undefined}
+                    class:list={[
+                      "block rounded px-2 py-1.5 text-sm transition-colors hover:bg-neutral-100",
+                      active
+                        ? "bg-neutral-100 font-medium text-neutral-900"
+                        : "text-neutral-500",
+                    ]}
+                  >
+                    {a.data.title}
+                    <span class="mt-0.5 block text-[0.65rem] uppercase tracking-wide text-neutral-400">
+                      {reversibilityLabel[a.data.reversibility]}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </li>
+      )}
+    </ul>
+  )
+}

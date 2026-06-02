@@ -20,6 +20,11 @@ function applySecurityHeaders(response: Response): Response {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // The rewrite intentionally keys off the request Host. This is safe to trust
+  // because the content served is public and host-independent, and canonicalUrl()
+  // derives the canonical origin from the configured Astro.site (not the Host) —
+  // so a spoofed Host cannot cause host injection or an open redirect, only a
+  // request for the same public content under a different name.
   const subdomain = context.url.hostname.split(".")[0];
   const prefix = HOST_ROUTES[subdomain];
   const { pathname } = context.url;
@@ -42,6 +47,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (error instanceof Response) {
       return applySecurityHeaders(error);
     }
-    throw error;
+    // A genuine exception would otherwise surface as the adapter's own 500 page,
+    // which never passes through this middleware — shipping an error response with
+    // no CSP/HSTS/etc. Log for observability, then return a headered generic 500.
+    console.error(error);
+    return applySecurityHeaders(
+      new Response("Internal Server Error", {
+        status: 500,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      }),
+    );
   }
 });
