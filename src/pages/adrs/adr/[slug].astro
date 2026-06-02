@@ -30,8 +30,13 @@ const supersededBy = all.find(
 
 const site = Astro.site ?? new URL("https://rsb.sh");
 const standardsHref = (id: string) => `https://standards.${site.host}/std/${id}/`;
+// Absolute, like standardsHref: this page is also reachable via the non-canonical
+// apex duplicate (rsb.sh/adrs/adr/…), where a host-relative /adr/{id}/ would
+// resolve against the apex and 404. Pin cross-links to the adrs. subdomain.
 const adrHref = (id: string) =>
-  byId.get(id)?.data.status === "draft" ? `/draft/${id}/` : `/adr/${id}/`;
+  byId.get(id)?.data.status === "draft"
+    ? `https://adrs.${site.host}/draft/${id}/`
+    : `https://adrs.${site.host}/adr/${id}/`;
 
 // Long-but-revalidating — NOT immutable: the derived superseded-by banner means
 // this page changes when a LATER ADR supersedes it.
