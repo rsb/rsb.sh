@@ -25,6 +25,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // derives the canonical origin from the configured Astro.site (not the Host) —
   // so a spoofed Host cannot cause host injection or an open redirect, only a
   // request for the same public content under a different name.
+  //
+  // That safety holds ONLY while every host serves the same public, read-only
+  // content. Host routing here is presentation, NOT a trust boundary. If any
+  // per-host access distinction is ever introduced (gated drafts, host-specific
+  // data, differing auth), it MUST derive from a trustworthy signal — an
+  // authenticated session, an edge-validated host allowlist, or separate Workers
+  // per trust domain — never the raw, client-spoofable Host header read here.
+  // (Settled constraint, rsb/rsb.sh#4. rsb.sh decisions live in code + issues,
+  // not the Rust-ecosystem ADR corpus, so this is recorded here rather than as an ADR.)
   const subdomain = context.url.hostname.split(".")[0];
   const prefix = HOST_ROUTES[subdomain];
   const { pathname } = context.url;
