@@ -23,13 +23,14 @@ Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 
   <h1 class="text-2xl font-semibold tracking-tight">Standards</h1>
   <p class="mt-4 max-w-prose text-neutral-600">
-    Standards are the normative rules of the RSB ecosystem: what code must do to
-    comply. Each one is driven by an accepted <a
+    Standards are the normative rules of the RSB ecosystem. Each codifies exactly
+    one accepted decision — the <a
       href="https://adrs.rsb.sh"
-      class="underline hover:no-underline">decision</a
-    >, carries a stable citable id (e.g. <code class="font-mono text-sm">STD-NAMING</code>), and is
-    corpus-versioned — a crate pinned to an earlier corpus still resolves what it
-    shipped against.
+      class="underline hover:no-underline">ADR</a
+    > records why, the standard states the requirement, released code complies — and
+    carries a stable, citable id (e.g. <code class="font-mono text-sm">STD-NAMING</code>).
+    Standards are corpus-versioned: a crate pinned to an earlier corpus resolves the
+    standard as it stood then, so released code never breaks under a later rule change.
   </p>
 
   {empty && <p class="mt-8 text-neutral-500">No standards have been published yet.</p>}
