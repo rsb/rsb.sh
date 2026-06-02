@@ -10,8 +10,9 @@ export const HOST_ROUTES: Record<string, string> = {
 // Build the canonical public URL for an internal route. Reverses HOST_ROUTES so
 // a page rendered at the internal path /adrs/NNNN canonicalizes to its real
 // public origin https://adrs.<apex>/NNNN, and every root/editorial path
-// canonicalizes to the apex — collapsing the www. and prerendered-leak
-// duplicates that otherwise resolve the same content under several hosts.
+// canonicalizes to the apex — collapsing the www.-vs-apex duplicate and the
+// internal-path duplicate (the /adrs|/standards subtree is also reachable on the
+// apex) so the same content resolves to one indexable URL.
 export function canonicalUrl(pathname: string, site: URL): string {
   for (const [subdomain, prefix] of Object.entries(HOST_ROUTES)) {
     if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
