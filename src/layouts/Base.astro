@@ -37,6 +37,17 @@ const nav = [
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {/* Preload the body face only: Inter drives first paint, so we head off the
+        FOUT the font-display: swap would otherwise show. JetBrains Mono is just
+        the wordmark/code and can keep swapping in. Same-origin woff2 — honours
+        the self-hosted font privacy invariant and CSP font-src 'self'. */}
+    <link
+      rel="preload"
+      href="/fonts/Inter-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="canonical" href={canonical} />
     <title>{title}</title>
     <meta name="description" content={description} />
