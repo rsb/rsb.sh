@@ -1,0 +1,233 @@
+---
+import Base from "../layouts/Base.astro";
+
+// "Why RSB" — the canonical case for the project: gratitude to open source, the
+// two enclosures (corporate lock-up of creative tools, AI's erosion of the
+// knowledge commons), and the offering RSB makes in response. A living editorial
+// page (not a dated article), built like /architecture/pillars — one stable,
+// slowly-changing document. Source of record is the draft in the open-source
+// planning repo (essay-why-rsb/draft.md); this is the published port.
+//
+// On-demand (not prerendered) so the host-routing middleware runs for it (issue
+// #2): a prerendered page is served from the static-assets layer before
+// middleware and would leak onto the adrs./standards. subdomains as a 200. As an
+// on-demand route it 404s on those hosts and only resolves on the apex.
+export const prerender = false;
+
+// Long-lived, stable content (same tier as the pillars page): cache like the
+// detail-page tier with stale-while-revalidate so an edit refreshes in the
+// background rather than ever serving an uncached origin hit.
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+);
+---
+
+<Base
+  title="Why RSB — rsb.sh"
+  description="Why the RSB ecosystem exists: a contribution to open source — free, professional creative tools where corporations have enclosed them, and a trusted, validated body of engineering knowledge where AI is eroding it."
+>
+  <article class="why">
+    <h1>Why RSB</h1>
+
+    <p>I am a software developer because of open source.</p>
+
+    <p>
+      That is not a figure of speech. More than thirty years ago I learned to
+      program, and I learned it from the work other people gave away — not only
+      their source code, but the articles and books they wrote to explain it.
+      Knowledge handed over by people I never met, for no reason other than that
+      sharing it was worth doing. Across a long career since, every job has run on
+      open source in one way or another. The community handed me a roadmap for how
+      to learn and how to build, and somewhere along that road I picked up the idea
+      that has shaped how I work ever since: the value of a feedback loop — that you
+      make something, watch how it actually behaves, and let what you learn correct
+      the next pass.
+    </p>
+
+    <p>
+      For all of that, I have always been on the using side of open source, never
+      the contributing side — not by choice so much as circumstance. A working
+      career has a way of taking all the hours you have, and the time to take part
+      was always the time I did not have. That is what I want to change. RSB is my
+      contribution, offered in the same spirit it was given to me — not to settle a
+      debt, because that is not how this community works; you do not pay open source
+      back so much as keep it going. After a long time on the outside of it, this is
+      me joining in.
+    </p>
+
+    <p>
+      But the community I want to join is not in the shape it was when it taught me.
+      Two things are closing in on it, and together they are why this project takes
+      the form it does.
+    </p>
+
+    <p>
+      The first is happening to the knowledge itself. The web of articles, answers,
+      and shared code that taught me to program — and that has taught everyone who
+      came after — is being quietly drained. Someone with a question who would once
+      have landed on a project's documentation, its forum, its repository, now gets
+      the answer from an AI and never arrives. For many projects that traffic was
+      not vanity; it was how they were found, how they drew contributors, sometimes
+      how they kept the lights on.
+    </p>
+
+    <p>
+      What worries me more is what fills the gap. A growing share of what gets
+      written is now generated rather than authored — produced fast, published
+      without anyone checking whether it is true, and then read back in by the next
+      model as if it were settled. Knowledge no one validated becomes training data,
+      becomes more knowledge no one validated. It is a feedback loop — the same idea
+      that shaped how I work — but running the wrong way, each pass leaving the web a
+      little less trustworthy than the last. I am not against AI — I use it where
+      appropriate, but I validate everything it produces and never treat it as a
+      source of truth. It is a double-edged sword, one that has to be used
+      responsibly. What I am against is not the technology but the carelessness
+      around it: knowledge entering circulation that no person ever stood behind.
+    </p>
+
+    <p>
+      The second enclosure is older and has nothing to do with AI. The tools serious
+      creative work depends on — the full-featured editors for photographs, for
+      documents, for video — have been fenced off. A handful of large companies own
+      that ground, and the cost of admission, in price or subscription or lock-in,
+      quietly decides who gets to make serious work and who does not. I came to this
+      through photography, which I love, and where the pattern is plain: the software
+      a professional relies on is rented, not owned, and a beginner's ambition meets
+      a paywall long before it meets the limits of their own skill.
+    </p>
+
+    <p>
+      Two things the community gives freely, then, both being closed off: the
+      knowledge that teaches people to build, and the tools they build with. That is
+      what the RSB ecosystem is a response to — and it is why the response has two
+      halves.
+    </p>
+
+    <p>
+      The two halves are built by the same hand, to the same standard, and that
+      standard is the part I care about most, so let me start there. Everything in
+      the RSB ecosystem is built in the open and held to a small set of
+      <a href="/architecture/pillars">pillars</a> — the test every decision is
+      measured against — and nothing, no claim and no line of code, is meant to
+      enter circulation without a person standing behind it. The pillars are written
+      down, in public, so you can hold me to them.
+    </p>
+
+    <p>
+      The first half is the tools. The ecosystem builds free, professional-grade
+      creative software for the desktop, beginning with the family of applications I
+      know best: photography. Not a stripped-down alternative to the expensive
+      thing, but the serious tool itself, given away. Underneath, it is built as
+      independent shells over shared modules and domains, so the pieces can be
+      understood and trusted on their own rather than tangled into a single mass —
+      the full shape lives in the <a href="/architecture">architecture reference</a>.
+      And it is free in both senses: it costs nothing, and the source is open under
+      a permissive license, so no one can fence it off again.
+    </p>
+
+    <p>
+      The second half is the knowledge. Building the tools this way produces, almost
+      as a byproduct, the very thing disappearing from the web: a body of
+      architecture and engineering knowledge that can be trusted because it was
+      validated. Every significant decision is reasoned through and
+      <a href="https://adrs.rsb.sh">recorded</a>; the rules those decisions imply
+      are written down as <a href="https://standards.rsb.sh">standards</a>; and all
+      of it answers to the same pillars. It is centred on Rust, because that is what
+      the ecosystem is built in, but the principles are not — they are how to build
+      serious software well. A developer starting out should be able to read it and
+      learn not only what was decided but why, and trust that a person stood behind
+      every word.
+    </p>
+
+    <p>
+      These two halves hold each other up. The knowledge is not theory, because
+      there is a real, running system that had to obey it — the tool is the proof.
+      And the tool can be trusted, because every decision inside it is open,
+      reasoned, and validated — the knowledge is the receipt. Most projects offer one
+      or the other: software with opaque internals, or writing with nothing running
+      behind it. The RSB ecosystem insists on both, because that is what open source
+      gave me — code I could read and the writing that explained it — and it is the
+      standard I want to give back.
+    </p>
+
+    <p>
+      Those two halves are the project. Beyond it, there is something larger I am
+      hoping for — something no single project can be on its own. The RSB ecosystem
+      is one island of trusted, validated knowledge, and it would mean little as the
+      only one. So part of the work is to find the others — the projects and writers
+      and sites that hold their own work to a standard like this one — and point to
+      them, openly, so a person learning to build has somewhere to stand. A single
+      trustworthy source is a refuge; a network of them is a place to grow up in. I
+      would like the RSB ecosystem to be a good neighbour in that network, not an
+      island pretending to be a continent.
+    </p>
+
+    <p>
+      I should be honest about where this is. It is early. There is more written
+      down than there is built, and what is built is the foundation rather than the
+      house. I am one person, and for now the community is whoever is reading this.
+      That is not something I am hiding — it is the invitation. The people I hope this
+      reaches are the ones who would rather build one thing correctly than ten things
+      quickly, who read a decision and want to know why, who would tell me when I am
+      wrong and expect me to listen. If that is you, you are early, and early is the
+      best time to arrive.
+    </p>
+
+    <p>
+      There are as many ways in as there are pieces of the work. Use the tools and
+      tell me where they fail you. Read the decisions and the standards and hold them
+      to the pillars — they are public precisely so you can. Write something to the
+      same standard and let me point to it. Fix what is wrong. Or just build
+      alongside, in your own corner, with the same care, and let that be the
+      contribution. None of it has to be code.
+    </p>
+
+    <p>
+      Open source did not survive because anyone was paid to keep it alive. It
+      survived because people who had been given something useful chose to add to it
+      rather than only take. That is the whole mechanism, and it is the only one. I
+      was given a great deal, and for a long time I only took. This is me adding to
+      it — and an invitation, if any of this is yours too, to add to it with me.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .why {
+    color: var(--color-neutral-700);
+  }
+
+  .why h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--color-neutral-900);
+    text-wrap: balance;
+  }
+
+  .why p {
+    margin-top: 1.25rem;
+    line-height: 1.75;
+  }
+
+  /* The opening line stands alone as a thesis — give it a touch more presence
+     than the body without turning it into a heading. */
+  .why p:first-of-type {
+    margin-top: 1.5rem;
+    font-size: 1.125rem;
+    color: var(--color-neutral-900);
+  }
+
+  .why a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-neutral-400);
+  }
+
+  .why a:hover {
+    text-decoration-color: var(--color-neutral-900);
+  }
+</style>

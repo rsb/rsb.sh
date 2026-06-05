@@ -1,0 +1,332 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArchitectureSidebar from "../../components/ArchitectureSidebar.astro";
+
+// The Four Pillars — the canonical statement of the values every ecosystem
+// decision is tested against. A single editorial page (not a collection): one
+// stable, slowly-changing document. It lives inside the Architecture section
+// (site-shell restructure): the philosophy that the decisions and standards rest
+// on, reached from the section rail. Source of record is the draft in the
+// open-source planning repo (pillars/pillars.md); this is the published port.
+// (Moved here from /pillars, which now 301-redirects to this URL.)
+//
+// On-demand (not prerendered) so the host-routing middleware runs for it (issue
+// #2): a prerendered page is served straight from the static-assets layer, which
+// would leak it onto the adrs./standards. subdomains as a 200. As an on-demand
+// route, middleware rewrites those hosts into the /adrs|/standards subtree, which
+// has no such route, so it 404s there and only resolves on the apex.
+export const prerender = false;
+
+// Long-lived, stable content (not a stub): cache like the detail-page tier, with
+// stale-while-revalidate so an edit refreshes in the background rather than ever
+// serving an uncached origin hit. Deliberately NOT the stub family's short TTL
+// (the section Overview and other stubs use max-age=60, s-maxage=300).
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+);
+---
+
+<Base
+  title="The Four Pillars — rsb.sh"
+  description="The four pillars every RSB ecosystem decision is tested against: reliability, accuracy, performance, and open and free."
+>
+  <ArchitectureSidebar slot="sidebar" />
+
+  <article class="pillars">
+    <h1>The Four Pillars</h1>
+
+    <p>
+      Every architecture decision in the RSB ecosystem is recorded as an ADR at
+      <a href="https://adrs.rsb.sh">adrs.rsb.sh</a>, and those decisions directly
+      shape the programming standards at
+      <a href="https://standards.rsb.sh">standards.rsb.sh</a>. But the decisions
+      and the standards both rest on something more fundamental: these four
+      pillars. The pillars hold up the foundation of everything the ecosystem
+      does. They are deliberately not specific — the ADRs and the standards are
+      where the specifics live — what the pillars do is set the direction and keep
+      the ecosystem stable as it grows.
+    </p>
+
+    <p>
+      So the pillars are not slogans, and they are not aspirations I hope to live
+      up to later. They are the constraints I hold every decision against — every
+      type, every API, every release. If a change strengthens one or more of them
+      without weakening any, it is probably a good change. When a change appears to
+      weaken one, that tension is not a verdict — it is a prompt to slow down and
+      look closer. The pillars do not move, but I am not rigid about them either;
+      building software is the art of balancing competing forces, and the honest
+      response to that kind of tension is to review it and talk it through until I
+      understand what is really being traded. The decision is not made by reflex —
+      neither waved through because it is convenient, nor refused because it brushes
+      against the philosophy. It is made by weighing what the work and its feedback
+      loops are actually telling me against what the pillars exist to protect, and
+      finding the balance between them.
+    </p>
+
+    <p>
+      These are my considered positions, not universal laws. Where a reasonable
+      person might choose differently, I have tried to say so. The work is meant to
+      make the case, not the manifesto.
+    </p>
+
+    <h2>Reliability — built in, not bolted on</h2>
+
+    <p class="commitment">
+      Reliability is engineered, not asserted — it lives in the design, the logic,
+      the failures, and the tests, not in good intentions.
+    </p>
+
+    <p>
+      Reliability begins before any code is written, in understanding how the
+      system actually behaves — where it can fail, what it depends on, how its
+      parts interact under load. That understanding is carried through every layer
+      that can hold it: the design, where failure modes are anticipated rather than
+      stumbled into; the logic, where invalid states are made unrepresentable
+      rather than merely discouraged; the failures themselves, traced and handled
+      until they are exhausted — because the successful path is never designed
+      directly, it is what emerges once every failure flow has been accounted for;
+      and the tests, where what the system claims is continually proven.
+    </p>
+
+    <p>
+      This is the foundational pillar: nothing else in the ecosystem matters if it
+      is wrong, so reliability is settled first and everything else is built on top
+      of it. In practice that means every error path is understood, tested, and
+      accounted for, and every error is classified by the recovery action it calls
+      for rather than the stack trace it leaves behind — because what a caller needs
+      to know is what to do next, not where the failure happened to surface. When an
+      error path genuinely cannot be exercised in a test, it does not get waved
+      through: it gets a dedicated written explanation — what the error is, how to
+      reproduce it or why it cannot be reproduced, and why no test covers it. And
+      when the choice is between making something easier and making it more
+      reliable, the pillar chooses reliability.
+    </p>
+
+    <h2>Accuracy — honest models, precise names</h2>
+
+    <p class="commitment">
+      Every abstraction is a claim about the world — accuracy is the commitment to
+      understanding that world and modeling it honestly.
+    </p>
+
+    <p>
+      Accuracy is the commitment to discovering the truth of a system and modeling
+      that understanding faithfully in the code. It is not a demand to get it right
+      the first time. Early models are often wrong, and being wrong while you are
+      still learning a system is not a failure — it is how the understanding is
+      earned. What accuracy refuses is the other thing: an abstraction that papers
+      over a gap in understanding, one that is convenient precisely because it skips
+      the work of actually grasping what it claims to represent. The goal is not to
+      be right immediately, but to keep moving toward a faithful model — and never
+      to pretend to an understanding the code does not yet have.
+    </p>
+
+    <p>
+      Accuracy works along three axes, and they reinforce each other. The first is
+      that the model is faithful to how the system behaves — the understanding I
+      keep refining. The second is that the words are faithful to what things
+      actually are: a pixel is called a pixel, not a dot; linear RGB is not labelled
+      sRGB; each thing is named with the domain's real, precise term rather than a
+      near-synonym that happens to be at hand. A name is a claim as much as a type
+      signature is. Call a pixel a dot and you have imported the wrong concept into
+      every place that name appears — people reason about dots, build on dots, and
+      inherit a misunderstanding that lives only in the vocabulary, never in the
+      system. Precise naming is not pedantry; it is the difference between code that
+      teaches the domain correctly and code that quietly miseducates everyone who
+      reads it.
+    </p>
+
+    <p>
+      The third is the feedback loop that keeps the first two honest. A model is
+      proposed, put to work, and measured against what the system actually does;
+      where it diverges, that divergence is the signal to correct the model — or the
+      name. Accuracy is not a state reached once and defended, but a commitment to
+      running this loop, so that each pass leaves the code more faithful than the
+      last.
+    </p>
+
+    <p>
+      Inaccurate abstractions compound. Downstream code inherits the lie without
+      knowing it, builds on top of it, and eventually produces a failure that is
+      harder to diagnose than it needs to be — the bug isn't in the code that broke,
+      it's in the contract that was never true. So the first question I ask of any
+      design is whether it represents the problem more accurately. A design that is
+      convenient but inaccurate is debt; a design that is awkward but accurate is a
+      signal that the vocabulary needs refining — not that accuracy should be
+      relaxed to make the awkwardness go away.
+    </p>
+
+    <h2>Performance — fast, and measured</h2>
+
+    <p class="commitment">
+      Speed is a design constraint, proven with benchmarks — not an optimization
+      pass deferred to later.
+    </p>
+
+    <p>
+      Performance is the commitment to treat the user's time as something worth
+      protecting. Speed is not a finishing touch applied once the features work; it
+      is a design constraint, decided up front and held to evidence. A system is
+      fast because it was built to be fast — because at each decision the cost in
+      time was weighed and measured — not because someone went hunting for things to
+      optimize after the fact.
+    </p>
+
+    <p>
+      This matters most at scale, which is where creative work lives. A delay that
+      is negligible on a single operation becomes punishing when it repeats across a
+      large body of work. Latency is cumulative, and cumulative latency is the line
+      between a tool professionals trust and one they quietly abandon.
+    </p>
+
+    <p>
+      So performance is decided at design time, not bolted on afterward. Code that
+      is correct and accurate but slow has still failed, because the resource the
+      project exists to protect is the user's time. "We can optimize later" is the
+      performance equivalent of "we can add tests later" — a decision to take on
+      debt that compounds faster than it can be repaid. Measurement is performance's
+      feedback loop: a benchmark is what turns a guess into a fact and a regression
+      into a signal, and performance claims made without one are almost always
+      wrong. So I measure first, decide second, and never ship a regression without
+      understanding exactly what was traded and why.
+    </p>
+
+    <p>
+      None of this is the easy path, and I won't pretend it is. Building for speed
+      from the start asks more than deferring it does, and there will be moments
+      when the easy route is right there. But choosing the harder line is what makes
+      the work stronger — and the people doing it stronger with it. The easy route
+      is not the one you chose, if you are reading this.
+    </p>
+
+    <h2>Open and free — the tools and the work are yours</h2>
+
+    <p class="commitment">
+      Professional-grade tools should be free and open, and the work made with them
+      should stay yours — the whole stack, software and files alike, in the hands of
+      the person using it.
+    </p>
+
+    <p>
+      This pillar is about independence, and it has two halves: you own the tools,
+      and you own the work. The conviction underneath it is simple — a creative's
+      ambition should not be gated by their budget. That professional-grade tools
+      are expensive is an accident of how the industry funded itself, not a law of
+      nature, and it quietly decides who gets to make serious work and who never
+      gets the chance. Free, open tools remove that gate.
+    </p>
+
+    <p>
+      Free here means two things, and I mean both. Free as in price: the software
+      costs nothing, so cost is never the reason someone cannot pick it up. And free
+      as in freedom: you can use it, study it, change it, and share it, because the
+      source is open. The RSB ecosystem is released under a dual MIT OR Apache-2.0
+      license — permissive by choice. Anyone can build on it, including commercially
+      and including in ways I would not have chosen myself, and I accept that as the
+      honest price of software that is genuinely free rather than free with
+      conditions attached.
+    </p>
+
+    <p>
+      Blender is the proof that none of this is naïve. It settled the argument that
+      free and open software can be professional-grade — not a budget alternative,
+      but the tool serious people choose and a whole industry comes to depend on —
+      and that a community can sustain it for decades. It is the north star: the
+      standing evidence that you do not have to choose between free and serious, and
+      the bar I am trying to clear.
+    </p>
+
+    <p>
+      Independence does not stop at the tools; the work is yours in the same way.
+      Your documents live on your machine. You can work offline, indefinitely, with
+      no loss of capability, and when the network is there it enriches the work
+      without ever owning it — the local copy is canonical, and the cloud is a
+      synchronized observer, never the source of truth. The RSB ecosystem's
+      infrastructure never receives, processes, stores, or monetizes your data, your
+      metadata, or your work; there is no background sync and no passive
+      transmission of any kind. When you switch on a cloud or AI feature, your
+      credentials go straight to that third-party service — the RSB ecosystem is
+      never in the path between you and your data.
+    </p>
+
+    <p>
+      Owning your tools and owning your work are the same commitment seen from two
+      sides: nobody gets to rent your craft back to you, lock you in, or take it
+      away.
+    </p>
+
+    <hr />
+
+    <p>
+      None of this is ever finished, and that is the design. Each pillar carries
+      its own feedback loop: reliability traces failures until they are exhausted,
+      accuracy measures the model against the system and corrects where they
+      diverge, performance turns guesses into facts with benchmarks, and openness
+      lets the work fund and grow the freedom that produced it. They are not four
+      standards to satisfy and set down. They are four loops to keep running, and
+      what they have in common is a direction: each pass through is meant to leave
+      the ecosystem more reliable, more accurate, faster, and freer than the one
+      before — never the reverse.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .pillars {
+    color: var(--color-neutral-700);
+  }
+
+  .pillars h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--color-neutral-900);
+    text-wrap: balance;
+  }
+
+  .pillars h2 {
+    margin-top: 3rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-neutral-900);
+  }
+
+  .pillars p {
+    margin-top: 1.25rem;
+    line-height: 1.75;
+  }
+
+  /* The one-line commitment under each pillar heading. */
+  .pillars .commitment {
+    margin-top: 0.75rem;
+    font-style: italic;
+    color: var(--color-neutral-500);
+    border-left: 2px solid var(--color-neutral-200);
+    padding-left: 1rem;
+  }
+
+  .pillars a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-neutral-400);
+  }
+
+  .pillars a:hover {
+    text-decoration-color: var(--color-neutral-900);
+  }
+
+  /* Thematic break before the closing reflection — a real <hr> (implicit
+     role="separator") so the section break is conveyed structurally, not just
+     visually, and mirrors the source draft's `---`. Reads as a coda, not a fifth
+     "Open and free" paragraph. */
+  .pillars hr {
+    margin: 2.5rem 0;
+    border: 0;
+    border-top: 1px solid var(--color-neutral-200);
+  }
+</style>

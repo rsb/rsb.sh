@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { canonicalUrl } from "../host-routes";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title?: string;
@@ -18,20 +19,28 @@ const {
 const site = Astro.site ?? new URL("https://rsb.sh");
 const canonical = canonicalUrl(Astro.url.pathname, site);
 
-// Navigation, honest about what exists at launch (launch-artifacts §6):
-// Architecture is the deepest surface; Pillars sits with the editorial surfaces
-// (after Writing/Architecture) — the philosophy reads as supporting context to
-// the work, not ahead of it; ADRs + standards are folded into one "Decisions &
-// Standards" pointer (the adrs. subdomain), not two thin peers; Docs points at
-// the separately-built docs. subdomain.
+// Top nav, slimmed to the four reading surfaces (site-shell restructure): Why
+// leads (the case for the project), then Writing, the Architecture section, and
+// the separately-built docs. subdomain. Pillars now lives inside /architecture,
+// Decisions & Standards are reached from that section's rail, and Contribute
+// moved to the global footer — so the nav stays a short, centered row.
 const nav = [
+  { href: "/why", label: "Why" },
   { href: "/articles", label: "Writing" },
   { href: "/architecture", label: "Architecture" },
-  { href: "/pillars", label: "Pillars" },
-  { href: "https://adrs.rsb.sh", label: "Decisions & Standards" },
   { href: "https://docs.rsb.sh", label: "Docs" },
-  { href: "/contribute", label: "Contribute" },
 ];
+
+// Active highlight for internal nav items: exact match or a child path (so
+// /architecture/pillars keeps "Architecture" lit). External links never match.
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (href: string) =>
+  href.startsWith("/") && (path === href || path.startsWith(`${href}/`));
+
+// When a page fills the `sidebar` slot it gets the two-pane section shell (rail +
+// wider reading pane, used by /architecture); otherwise the centered editorial
+// measure. Header and footer chrome are shared either way.
+const hasSidebar = Astro.slots.has("sidebar");
 ---
 
 <!doctype html>
@@ -55,30 +64,60 @@ const nav = [
     <title>{title}</title>
     <meta name="description" content={description} />
   </head>
-  <body class="min-h-screen bg-white text-neutral-900">
-    <header class="mx-auto flex max-w-2xl flex-wrap items-baseline gap-x-6 gap-y-2 px-6 pt-8">
-      <a
-        href="/"
-        class="font-mono text-sm tracking-wide text-neutral-900"
-        aria-label="rsb.sh home"
-      >
-        rsb.sh
-      </a>
-      <nav
-        aria-label="Primary"
-        class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-600"
-      >
-        {
-          nav.map((item) => (
-            <a class="transition-colors hover:text-neutral-900" href={item.href}>
-              {item.label}
-            </a>
-          ))
-        }
-      </nav>
+  <body class="flex min-h-screen flex-col bg-white text-neutral-900">
+    <header class="flex justify-center border-b border-neutral-200 px-8 pb-5 pt-7">
+      <div class="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <a
+          href="/"
+          class="font-mono text-sm tracking-wide text-neutral-900"
+          aria-label="rsb.sh home"
+        >
+          rsb.sh
+        </a>
+        <nav
+          aria-label="Primary"
+          class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-600"
+        >
+          {
+            nav.map((item) => (
+              <a
+                class:list={[
+                  "transition-colors hover:text-neutral-900",
+                  isActive(item.href) && "font-medium text-neutral-900",
+                ]}
+                href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
     </header>
-    <main class="mx-auto max-w-2xl px-6 py-16">
-      <slot />
-    </main>
+
+    {
+      hasSidebar ? (
+        <div class="flex flex-1 flex-col md:flex-row">
+          <aside
+            aria-label="Architecture"
+            class="border-b border-neutral-200 px-6 py-8 md:w-64 md:shrink-0 md:border-b-0 md:border-r"
+          >
+            <slot name="sidebar" />
+          </aside>
+          <main class="min-w-0 flex-1 px-6 py-10 md:px-12">
+            <div class="max-w-3xl">
+              <slot />
+            </div>
+          </main>
+        </div>
+      ) : (
+        <main class="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
+          <slot />
+        </main>
+      )
+    }
+
+    <Footer />
   </body>
 </html>

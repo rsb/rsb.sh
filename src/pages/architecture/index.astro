@@ -1,24 +1,79 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ArchitectureSidebar from "../../components/ArchitectureSidebar.astro";
 
-// Stub. Becomes an Astro content collection (MDX, `lastUpdated`, typed contract
-// references) per launch-artifacts §3 — laid out here so that lands without
-// rework.
+// The Architecture section landing / Overview (site-shell restructure). The
+// section gathers the philosophy (The Four Pillars) and points out to the two
+// host-routed surfaces where the specifics live — Decisions (adrs.) and Standards
+// (standards.). The full architecture reference (the shells/services/domains
+// decomposition) is not yet published; this Overview is honest about that and
+// becomes an Astro content collection per launch-artifacts §3 when it lands.
 //
 // On-demand (not prerendered) so the host-routing middleware runs for it (issue
-// #2). A prerendered page is served straight from the static-assets layer — the
-// adapter short-circuits it before middleware — so it would leak onto the
-// adrs./standards. subdomains as a 200. As an on-demand route, middleware sees the
-// request: on the apex it renders here; on a host-routed subdomain it rewrites into
-// the /adrs|/standards subtree, which has no such route, so it 404s.
+// #2): a prerendered page is served from the static-assets layer before
+// middleware and would leak onto the adrs./standards. subdomains as a 200. As an
+// on-demand route it 404s on those hosts and only resolves on the apex.
 export const prerender = false;
 
-// Edge-cacheable like the adrs./standards. landings, so dropping prerender does not
-// turn this stable stub into an uncached origin hit.
+// Edge-cacheable like the other section stubs so dropping prerender does not turn
+// a stable page into an uncached origin hit.
 Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
-<Base title="Architecture — rsb.sh">
-  <h1 class="text-3xl font-semibold tracking-tight">Architecture</h1>
-  <p class="mt-4 text-neutral-600">Not yet published.</p>
+<Base
+  title="Architecture — rsb.sh"
+  description="How the RSB ecosystem is built: the four pillars every decision is tested against, the decisions themselves, and the standards they imply."
+>
+  <ArchitectureSidebar slot="sidebar" />
+
+  <article class="architecture">
+    <h1>Architecture</h1>
+
+    <p>
+      This is where the RSB ecosystem explains how it is built. It rests on
+      <a href="/architecture/pillars">the four pillars</a> every decision is tested
+      against; the decisions themselves are recorded as ADRs at
+      <a href="https://adrs.rsb.sh">adrs.rsb.sh</a>, and the rules those decisions
+      imply are written down as standards at
+      <a href="https://standards.rsb.sh">standards.rsb.sh</a>.
+    </p>
+
+    <p>
+      The full architecture reference — the shells, services, and domains the
+      applications are built from — is still being written. For now this section
+      holds the pillars and points you to the decisions and standards. It will grow
+      as the work does.
+    </p>
+  </article>
 </Base>
+
+<style>
+  .architecture {
+    color: var(--color-neutral-700);
+  }
+
+  .architecture h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--color-neutral-900);
+    text-wrap: balance;
+  }
+
+  .architecture p {
+    margin-top: 1.25rem;
+    line-height: 1.75;
+  }
+
+  .architecture a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-neutral-400);
+  }
+
+  .architecture a:hover {
+    text-decoration-color: var(--color-neutral-900);
+  }
+</style>
