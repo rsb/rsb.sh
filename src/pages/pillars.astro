@@ -251,7 +251,9 @@ Astro.response.headers.set(
       away.
     </p>
 
-    <p class="outro">
+    <hr />
+
+    <p>
       None of this is ever finished, and that is the design. Each pillar carries
       its own feedback loop: reliability traces failures until they are exhausted,
       accuracy measures the model against the system and corrects where they
@@ -313,12 +315,13 @@ Astro.response.headers.set(
     text-decoration-color: var(--color-neutral-900);
   }
 
-  /* The closing reflection — set off from the last pillar with a hairline rule
-     and breathing room so it reads as a coda, not a fifth "Open and free"
-     paragraph. */
-  .pillars .outro {
-    margin-top: 2.5rem;
-    padding-top: 2.5rem;
+  /* Thematic break before the closing reflection — a real <hr> (implicit
+     role="separator") so the section break is conveyed structurally, not just
+     visually, and mirrors the source draft's `---`. Reads as a coda, not a fifth
+     "Open and free" paragraph. */
+  .pillars hr {
+    margin: 2.5rem 0;
+    border: 0;
     border-top: 1px solid var(--color-neutral-200);
   }
 </style>
