@@ -18,14 +18,16 @@ const {
 const site = Astro.site ?? new URL("https://rsb.sh");
 const canonical = canonicalUrl(Astro.url.pathname, site);
 
-// Stub navigation, honest about what exists at launch (launch-artifacts §6):
-// Architecture is the deepest surface; ADRs + standards are folded into one
-// "Decisions & Standards" pointer (the adrs. subdomain), not two thin peers;
-// Docs points at the separately-built docs. subdomain.
+// Navigation, honest about what exists at launch (launch-artifacts §6):
+// Architecture is the deepest surface; Pillars sits with the editorial surfaces
+// (after Writing/Architecture) — the philosophy reads as supporting context to
+// the work, not ahead of it; ADRs + standards are folded into one "Decisions &
+// Standards" pointer (the adrs. subdomain), not two thin peers; Docs points at
+// the separately-built docs. subdomain.
 const nav = [
-  { href: "/pillars", label: "Pillars" },
   { href: "/articles", label: "Writing" },
   { href: "/architecture", label: "Architecture" },
+  { href: "/pillars", label: "Pillars" },
   { href: "https://adrs.rsb.sh", label: "Decisions & Standards" },
   { href: "https://docs.rsb.sh", label: "Docs" },
   { href: "/contribute", label: "Contribute" },
