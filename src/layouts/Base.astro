@@ -65,6 +65,12 @@ const hasSidebar = Astro.slots.has("sidebar");
     <meta name="description" content={description} />
   </head>
   <body class="flex min-h-screen flex-col bg-white text-neutral-900">
+    <a
+      href="#content"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:rounded focus:bg-neutral-900 focus:px-3 focus:py-2 focus:text-sm focus:text-white"
+    >
+      Skip to content
+    </a>
     <header class="flex justify-center border-b border-neutral-200 px-8 pb-5 pt-7">
       <div class="flex flex-wrap items-baseline gap-x-6 gap-y-2">
         <a
@@ -99,20 +105,20 @@ const hasSidebar = Astro.slots.has("sidebar");
     {
       hasSidebar ? (
         <div class="flex flex-1 flex-col md:flex-row">
-          <aside
+          <nav
             aria-label="Architecture"
             class="border-b border-neutral-200 px-6 py-8 md:w-64 md:shrink-0 md:border-b-0 md:border-r"
           >
             <slot name="sidebar" />
-          </aside>
-          <main class="min-w-0 flex-1 px-6 py-10 md:px-12">
+          </nav>
+          <main id="content" class="min-w-0 flex-1 px-6 py-10 md:px-12">
             <div class="max-w-3xl">
               <slot />
             </div>
           </main>
         </div>
       ) : (
-        <main class="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
+        <main id="content" class="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
           <slot />
         </main>
       )

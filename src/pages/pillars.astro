@@ -11,5 +11,18 @@
 // it 404s and never leaks the redirect onto those surfaces.
 export const prerender = false;
 
-return Astro.redirect("/architecture/pillars", 301);
+// A permanent move is the most cacheable response here, but Cloudflare won't cache
+// an origin 301 without an explicit header — so set one, matching the restructure's
+// "no uncached origin hits" rule for on-demand routes. Built as an explicit Response
+// rather than Astro.redirect() + Astro.response.headers: returning a Response from
+// the frontmatter short-circuits rendering, so headers set on Astro.response would
+// be dropped. The host-routing middleware still layers the security headers on top
+// (and still rewrites adrs./standards. away before this page runs, so it 404s there).
+return new Response(null, {
+  status: 301,
+  headers: {
+    Location: "/architecture/pillars",
+    "Cache-Control": "public, max-age=300, s-maxage=86400",
+  },
+});
 ---
