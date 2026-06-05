@@ -1,0 +1,51 @@
+---
+// The Architecture section rail (site-shell restructure), passed into Base's
+// `sidebar` slot. Two in-section pages lead; a rule separates them from the two
+// off-section pointers. Decisions/Standards are their own host-routed surfaces
+// (adrs./standards. subdomains) and stay canonical there — this rail only LINKS
+// out to them, which the ↗ marks. Pattern mirrors AdrSidebar/StandardsSidebar.
+const links = [
+  { href: "/architecture", label: "Overview" },
+  { href: "/architecture/pillars", label: "The Four Pillars" },
+];
+
+// Active = exact path match (both section pages are leaves, no children).
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<p class="mb-4 text-sm font-semibold tracking-wide text-neutral-900">
+  Architecture
+</p>
+
+{
+  links.map((l) => {
+    const active = path === l.href;
+    return (
+      <a
+        href={l.href}
+        aria-current={active ? "page" : undefined}
+        class:list={[
+          "block py-1.5 text-sm transition-colors hover:text-neutral-900",
+          active ? "font-semibold text-neutral-900" : "text-neutral-600",
+        ]}
+      >
+        {l.label}
+      </a>
+    );
+  })
+}
+
+<div class="my-3 h-px bg-neutral-200"></div>
+
+<a
+  href="https://adrs.rsb.sh"
+  class="block py-1.5 text-sm text-neutral-600 transition-colors hover:text-neutral-900"
+>
+  Decisions <span aria-hidden="true" class="text-neutral-400">&#8599;</span>
+</a>
+<a
+  href="https://standards.rsb.sh"
+  class="block py-1.5 text-sm text-neutral-600 transition-colors hover:text-neutral-900"
+>
+  Standards <span aria-hidden="true" class="text-neutral-400">&#8599;</span>
+</a>

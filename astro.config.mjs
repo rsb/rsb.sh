@@ -46,11 +46,14 @@ export default defineConfig({
   // Sitemap covers the apex editorial routes only. The host-routed
   // adrs./standards. pages live on their own subdomains and grow their own
   // sitemaps when those collections land, so their internal apex paths are
-  // filtered out here. robots.txt points at the index.
+  // filtered out here. /pillars is excluded too: it is now a 301 to
+  // /architecture/pillars (the move), and a sitemap should list canonical 200
+  // URLs only — never a self-inflicted redirect. robots.txt points at the index.
   integrations: [
     sitemap({
       filter: (page) => {
         const { pathname } = new URL(page);
+        if (pathname === "/pillars/") return false;
         return !HOST_ROUTE_PREFIXES.some(
           (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
         );
