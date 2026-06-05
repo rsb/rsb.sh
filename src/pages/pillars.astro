@@ -250,6 +250,20 @@ Astro.response.headers.set(
       sides: nobody gets to rent your craft back to you, lock you in, or take it
       away.
     </p>
+
+    <hr />
+
+    <p>
+      None of this is ever finished, and that is the design. Each pillar carries
+      its own feedback loop: reliability traces failures until they are exhausted,
+      accuracy measures the model against the system and corrects where they
+      diverge, performance turns guesses into facts with benchmarks, and openness
+      lets the work fund and grow the freedom that produced it. They are not four
+      standards to satisfy and set down. They are four loops to keep running, and
+      what they have in common is a direction: each pass through is meant to leave
+      the ecosystem more reliable, more accurate, faster, and freer than the one
+      before — never the reverse.
+    </p>
   </article>
 </Base>
 
@@ -299,5 +313,15 @@ Astro.response.headers.set(
 
   .pillars a:hover {
     text-decoration-color: var(--color-neutral-900);
+  }
+
+  /* Thematic break before the closing reflection — a real <hr> (implicit
+     role="separator") so the section break is conveyed structurally, not just
+     visually, and mirrors the source draft's `---`. Reads as a coda, not a fifth
+     "Open and free" paragraph. */
+  .pillars hr {
+    margin: 2.5rem 0;
+    border: 0;
+    border-top: 1px solid var(--color-neutral-200);
   }
 </style>
