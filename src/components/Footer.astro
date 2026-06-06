@@ -25,8 +25,13 @@ const social = [
 ];
 ---
 
+{/* Sticky to the viewport bottom so it stays visible through long content rather
+    than only appearing once you scroll to the end. It still sits in normal flow
+    (sticky, not fixed), so on short pages Base's min-h-screen flex column keeps it
+    pinned to the bottom as before — no content-padding hack needed. Explicit
+    bg-white + the top border so content scrolls cleanly underneath it. */}
 <footer
-  class="flex items-center justify-between border-t border-neutral-200 px-8 py-4 text-sm"
+  class="sticky bottom-0 z-10 flex items-center justify-between border-t border-neutral-200 bg-white px-8 py-4 text-sm"
 >
   <a
     href="/contribute"
