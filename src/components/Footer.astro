@@ -1,8 +1,9 @@
 ---
-// Global single-line footer (site-shell restructure): Contribute on the left, the
-// brand social icons on the right. No copyright line — the single-line look was the
-// approved design. Icons are inline <svg> (simple-icons brand paths), same-origin,
-// so they satisfy the strict CSP without an img-src or external request.
+// Global single-line footer (site-shell restructure): the brand social icons,
+// right-aligned. No copyright line — the single-line look was the approved design.
+// Contribute now lives in the header nav, so the footer carries no internal links.
+// Icons are inline <svg> (simple-icons brand paths), same-origin, so they satisfy
+// the strict CSP without an img-src or external request.
 //
 // Order is GitHub · Instagram · LinkedIn. Profile URLs per the canonical list on
 // rsb.ink.
@@ -31,14 +32,8 @@ const social = [
     pinned to the bottom as before — no content-padding hack needed. Explicit
     bg-white + the top border so content scrolls cleanly underneath it. */}
 <footer
-  class="sticky bottom-0 z-10 flex items-center justify-between border-t border-neutral-200 bg-white px-8 py-4 text-sm"
+  class="sticky bottom-0 z-10 flex items-center justify-end border-t border-neutral-200 bg-white px-8 py-4 text-sm"
 >
-  <a
-    href="/contribute"
-    class="text-neutral-600 transition-colors hover:text-neutral-900"
-  >
-    Contribute
-  </a>
   <div class="flex items-center gap-5 text-neutral-400">
     {
       social.map((s) => (
