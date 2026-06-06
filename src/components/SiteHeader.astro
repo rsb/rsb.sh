@@ -1,0 +1,77 @@
+---
+// The one site header, shared by every surface so the apex and the host-routed
+// subdomains (adrs./standards.) wear the same centered wordmark + nav (site-shell
+// restructure). Extracted from Base.astro so DecisionLog can reuse it verbatim.
+//
+// `base` prefixes the INTERNAL links. On the apex it is "" so they stay
+// root-relative (which is also what local preview needs — an absolute
+// https://rsb.sh/why would jump to production from localhost). On a subdomain it
+// is "https://rsb.sh", because a root-relative "/why" there is host-rewritten into
+// that subdomain's subtree (/adrs/why) and 404s — cross-surface nav has to be
+// absolute back to the apex. External links (Docs) are already absolute and pass
+// through untouched.
+interface Props {
+  base?: string;
+}
+
+const { base = "" } = Astro.props;
+
+// Top nav: Why leads (the case for the project), then Writing, the Architecture
+// section and the ADR surface (adrs.rsb.sh, the decision records that sit under
+// it), the separately-built docs. subdomain, and Contribute last. ADR and Docs
+// are external; the rest resolve through `base`.
+const nav = [
+  { href: "/why", label: "Why" },
+  { href: "/articles", label: "Writing" },
+  { href: "/architecture", label: "Architecture" },
+  { href: "https://adrs.rsb.sh", label: "ADR" },
+  { href: "https://docs.rsb.sh", label: "Docs" },
+  { href: "/contribute", label: "Contribute" },
+];
+
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+const resolve = (href: string) => (isExternal(href) ? href : `${base}${href}`);
+
+// Active highlight for internal nav items: exact match or a child path (so
+// /architecture/pillars keeps "Architecture" lit). Only meaningful on the apex
+// (base === "") — on a subdomain the apex-absolute hrefs never match the local
+// path, so nothing lights up, which is correct: Decisions/Standards aren't in
+// this nav. External links never match.
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (href: string) =>
+  base === "" && !isExternal(href) && (path === href || path.startsWith(`${href}/`));
+---
+
+{/* Wordmark hard-left, nav right — mirrors the footer's Contribute-left / icons-
+    right line, sharing its px-8 gutter so the wordmark and Contribute sit on the
+    same left margin. */}
+<header
+  class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-neutral-200 px-8 pb-5 pt-7"
+>
+  <a
+    href={`${base}/`}
+    class="font-mono text-sm tracking-wide text-neutral-900"
+    aria-label="rsb.sh home"
+  >
+    rsb.sh
+  </a>
+  <nav
+    aria-label="Primary"
+    class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-600"
+  >
+    {
+      nav.map((item) => (
+        <a
+          class:list={[
+            "transition-colors hover:text-neutral-900",
+            isActive(item.href) && "font-medium text-neutral-900",
+          ]}
+          href={resolve(item.href)}
+          aria-current={isActive(item.href) ? "page" : undefined}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
