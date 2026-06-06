@@ -42,7 +42,11 @@ function applySecurityHeaders(response: Response): Response {
 function applyHtmlCachePolicy(response: Response): void {
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("text/html")) return;
-  if (response.headers.get("cache-control") === "no-store") return;
+  // Never weaken a response that already chose no-store (unpublished drafts).
+  // Substring + lower-cased so a compound or differently-cased value
+  // ("private, no-store", "No-Store") still counts — cache-control directives
+  // are case-insensitive, and this is the single choke point for the policy.
+  if ((response.headers.get("cache-control") ?? "").toLowerCase().includes("no-store")) return;
   response.headers.set("Cache-Control", "no-cache");
 }
 
