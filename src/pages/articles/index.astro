@@ -12,10 +12,6 @@ import Base from "../../layouts/Base.astro";
 // request: on the apex it renders here; on a host-routed subdomain it rewrites into
 // the /adrs|/standards subtree, which has no such route, so it 404s.
 export const prerender = false;
-
-// Edge-cacheable like the adrs./standards. landings, so dropping prerender does not
-// turn this stable stub into an uncached origin hit.
-Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
 <Base title="Writing — rsb.sh">

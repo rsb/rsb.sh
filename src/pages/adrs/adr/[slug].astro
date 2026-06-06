@@ -38,13 +38,6 @@ const adrHref = (id: string) =>
     ? `https://adrs.${site.host}/draft/${id}/`
     : `https://adrs.${site.host}/adr/${id}/`;
 
-// Long-but-revalidating — NOT immutable: the derived superseded-by banner means
-// this page changes when a LATER ADR supersedes it.
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
-);
-
 const reversibilityLabel: Record<string, string> = {
   bedrock: "bedrock",
   "hard-to-reverse": "hard to reverse",

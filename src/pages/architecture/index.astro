@@ -14,10 +14,6 @@ import ArchitectureSidebar from "../../components/ArchitectureSidebar.astro";
 // middleware and would leak onto the adrs./standards. subdomains as a 200. As an
 // on-demand route it 404s on those hosts and only resolves on the apex.
 export const prerender = false;
-
-// Edge-cacheable like the other section stubs so dropping prerender does not turn
-// a stable page into an uncached origin hit.
-Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
 <Base

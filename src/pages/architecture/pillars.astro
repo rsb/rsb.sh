@@ -16,15 +16,6 @@ import ArchitectureSidebar from "../../components/ArchitectureSidebar.astro";
 // route, middleware rewrites those hosts into the /adrs|/standards subtree, which
 // has no such route, so it 404s there and only resolves on the apex.
 export const prerender = false;
-
-// Long-lived, stable content (not a stub): cache like the detail-page tier, with
-// stale-while-revalidate so an edit refreshes in the background rather than ever
-// serving an uncached origin hit. Deliberately NOT the stub family's short TTL
-// (the section Overview and other stubs use max-age=60, s-maxage=300).
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
-);
 ---
 
 <Base

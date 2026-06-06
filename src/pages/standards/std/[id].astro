@@ -24,13 +24,6 @@ const sourceHref = `https://adrs.${site.host}/adr/${entry.data.sourceAdr.id}/`;
 // The reason this surface exists: the exact string a released crate uses to cite
 // this standard, built from the REAL corpusVersion field (never hardcoded).
 const citeString = `Complies with ${entry.id} (corpus v${entry.data.corpusVersion})`;
-
-// Long-but-revalidating — NOT immutable: a standard is revisable (a corpus bump
-// changes this page).
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
-);
 ---
 
 <DecisionLog surface="Standards" title={`${entry.id} · ${entry.data.title}`}>

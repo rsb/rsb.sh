@@ -4,7 +4,7 @@ import DecisionLog from "../../layouts/DecisionLog.astro";
 import AdrSidebar from "../../components/AdrSidebar.astro";
 
 // adrs.rsb.sh landing (ADR plan §5.6). On-demand so the host-routing middleware
-// runs. Short cache — it reflects the changing log (new ADRs, derived supersession).
+// runs.
 export const prerender = false;
 
 const all = await getCollection("adrs");
@@ -12,8 +12,6 @@ const accepted = all.filter((a) => a.data.status === "accepted").length;
 const deprecated = all.filter((a) => a.data.status === "deprecated").length;
 const drafts = all.filter((a) => a.data.status === "draft").length;
 const empty = all.length === 0;
-
-Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
 <DecisionLog
