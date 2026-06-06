@@ -4,14 +4,12 @@ import DecisionLog from "../../layouts/DecisionLog.astro";
 import StandardsSidebar from "../../components/StandardsSidebar.astro";
 
 // standards.rsb.sh landing (standards plan §5.2). On-demand so host routing runs.
-// Short cache. At-a-glance corpus version intentionally omitted (decision B) — the
-// real version lives on each standard's "how to cite" string.
+// At-a-glance corpus version intentionally omitted (decision B) — the real version
+// lives on each standard's "how to cite" string.
 export const prerender = false;
 
 const standards = await getCollection("standards");
 const empty = standards.length === 0;
-
-Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
 <DecisionLog

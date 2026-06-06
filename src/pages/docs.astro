@@ -16,10 +16,6 @@ import "../styles/global.css";
 // On-demand (not prerendered) so the middleware runs and the request reaches it;
 // keeps the prerender guard green.
 export const prerender = false;
-
-// Stable stub: cache like the other launch stubs so dropping prerender doesn't
-// make it an uncached origin hit.
-Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
 ---
 
 <!doctype html>

@@ -13,6 +13,14 @@ const body = [
   "/*",
   ...Object.entries(SECURITY_HEADERS).map(([name, value]) => `  ${name}: ${value}`),
   "",
+  "# Content-hashed build assets (/_astro/*): the filename changes whenever the",
+  "# contents change, so they are safe to cache permanently. Cloudflare applies",
+  "# matching _headers rules cumulatively, so the /* security headers above still",
+  "# apply here too. (HTML pages are the opposite — no-cache in src/middleware.ts —",
+  "# so a cached page can never outlive the hashed assets it references; rsb/rsb.sh.)",
+  "/_astro/*",
+  "  Cache-Control: public, max-age=31536000, immutable",
+  "",
 ].join("\n");
 
 const target = new URL("../public/_headers", import.meta.url);

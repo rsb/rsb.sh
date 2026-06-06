@@ -23,7 +23,31 @@ function applySecurityHeaders(response: Response): Response {
   for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
     response.headers.set(header, value);
   }
+  applyHtmlCachePolicy(response);
   return response;
+}
+
+// HTML pages embed content-hashed asset URLs (/_astro/<hash>.css|js). A deploy
+// generates new hashes and removes the old files, so any HTML a browser keeps
+// across a deploy points at assets that now 404 (text/html, not the asset) —
+// which makes a render-blocking stylesheet fail and the page paint unstyled
+// until a reload (rsb/rsb.sh). The only deploy-safe answer without retaining old
+// assets or purging an HTML cache is to never reuse a page without revalidating:
+// no-cache means the browser always checks the server, so it always gets HTML
+// that references live hashes. (Content-hashed assets are cached hard instead —
+// public/_headers, scripts/gen-headers.ts.) Set centrally here so every HTML
+// surface is covered and new pages are safe by default. A page that has already
+// chosen the stricter no-store (unpublished drafts) is left untouched; non-HTML
+// responses (redirects, the 500) reference no assets and keep their own caching.
+function applyHtmlCachePolicy(response: Response): void {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("text/html")) return;
+  // Never weaken a response that already chose no-store (unpublished drafts).
+  // Substring + lower-cased so a compound or differently-cased value
+  // ("private, no-store", "No-Store") still counts — cache-control directives
+  // are case-insensitive, and this is the single choke point for the policy.
+  if ((response.headers.get("cache-control") ?? "").toLowerCase().includes("no-store")) return;
+  response.headers.set("Cache-Control", "no-cache");
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
