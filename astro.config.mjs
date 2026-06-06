@@ -53,7 +53,9 @@ export default defineConfig({
     sitemap({
       filter: (page) => {
         const { pathname } = new URL(page);
-        if (pathname === "/pillars/") return false;
+        // /pillars 301-redirects (the move); /docs is the noindex docs.rsb.sh
+        // coming-soon placeholder — neither is a canonical 200 to advertise.
+        if (pathname === "/pillars/" || pathname === "/docs/") return false;
         return !HOST_ROUTE_PREFIXES.some(
           (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
         );

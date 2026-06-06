@@ -1,0 +1,57 @@
+---
+import "../styles/global.css";
+
+// Coming-soon placeholder for docs.rsb.sh. The crate-docs pipeline isn't built
+// yet, and that subdomain is meant to become its own project — but until it does,
+// the host still resolves to this worker. The host-routing middleware rewrites
+// every docs.rsb.sh path to this page (src/middleware.ts) so the docs origin does
+// NOT fall through to the editorial root, which would clone the homepage and loop
+// its root-relative nav onto docs.rsb.sh.
+//
+// Deliberately self-contained — it does NOT use Base, so it carries no editorial
+// nav and nothing relative that could re-introduce the loop; the only links are
+// absolute to https://rsb.sh. noindex'd so a placeholder is never indexed (on the
+// docs host or via the apex /docs path it also answers).
+//
+// On-demand (not prerendered) so the middleware runs and the request reaches it;
+// keeps the prerender guard green.
+export const prerender = false;
+
+// Stable stub: cache like the other launch stubs so dropping prerender doesn't
+// make it an uncached origin hit.
+Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="robots" content="noindex" />
+    <title>Documentation — rsb.sh</title>
+    <meta name="description" content="The RSB documentation is coming soon." />
+  </head>
+  <body
+    class="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center text-neutral-900"
+  >
+    <main>
+      <a
+        href="https://rsb.sh"
+        class="font-mono text-sm tracking-wide text-neutral-500 transition-colors hover:text-neutral-900"
+      >
+        rsb.sh
+      </a>
+      <h1 class="mt-6 text-3xl font-semibold tracking-tight">Documentation</h1>
+      <p class="mt-3 text-neutral-600">
+        Coming soon — the RSB docs are still being built.
+      </p>
+      <a
+        href="https://rsb.sh"
+        class="mt-6 inline-block text-sm text-neutral-600 underline decoration-neutral-400 underline-offset-2 transition-colors hover:decoration-neutral-900"
+      >
+        Back to rsb.sh
+      </a>
+    </main>
+  </body>
+</html>

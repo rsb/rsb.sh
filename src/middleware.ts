@@ -6,11 +6,18 @@ import { HOST_ROUTES } from "./host-routes";
 // standards.rsb.sh are served from this same project, mapped (via HOST_ROUTES,
 // shared with the canonical-URL helper) onto the /adrs and /standards route
 // subtrees so their public origins stay clean (adrs.rsb.sh/adr/NNNN-slug/, not
-// rsb.sh/adrs/...). Only docs.rsb.sh is a separate, monorepo-generated Pages
-// project — not handled here.
+// rsb.sh/adrs/...). docs.rsb.sh will eventually be its own crate-docs project, but
+// until that ships the host still resolves here, so it is held on a coming-soon
+// placeholder (see the docs branch below) rather than left to fall through.
 //
 // The entry pages for these hosts (and the root "/") must be on-demand
 // (`export const prerender = false`) so this middleware runs at request time.
+
+// docs.rsb.sh is special-cased rather than added to HOST_ROUTES: it has no
+// internal subtree (no /docs/* content), so every path collapses onto the one
+// placeholder page rather than being rewritten subtree-style.
+const DOCS_SUBDOMAIN = "docs";
+const DOCS_PLACEHOLDER = "/docs";
 
 function applySecurityHeaders(response: Response): Response {
   for (const [header, value] of Object.entries(SECURITY_HEADERS)) {
@@ -46,6 +53,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     !!prefix && (pathname === prefix || pathname.startsWith(`${prefix}/`));
 
   try {
+    // docs.rsb.sh is reserved for the not-yet-built crate-docs pipeline (its own
+    // project). Until that ships the host still resolves to THIS worker, so serve
+    // a single coming-soon placeholder for every path instead of falling through
+    // to the editorial root — which would clone the homepage and loop its
+    // root-relative nav onto the docs origin (rsb/rsb.sh). Unlike HOST_ROUTES this
+    // is not a subtree rewrite (there is no /docs/* content), so every path maps to
+    // the one placeholder. The pathname guard mirrors `alreadyScoped`: don't
+    // re-rewrite once the request is already on the placeholder.
+    if (subdomain === DOCS_SUBDOMAIN && pathname !== DOCS_PLACEHOLDER) {
+      return applySecurityHeaders(await next(DOCS_PLACEHOLDER));
+    }
     if (prefix && !alreadyScoped) {
       const rest = pathname === "/" ? "" : pathname;
       return applySecurityHeaders(await next(prefix + rest));
