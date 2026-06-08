@@ -6,8 +6,77 @@ import Base from "../layouts/Base.astro";
 export const prerender = false;
 ---
 
-<Base>
+<Base
+  description="Open-source, local-first professional creative tools for the desktop — starting with photography — and the engineering knowledge behind them, every decision reasoned through in the open and written down."
+>
   <h1 class="text-3xl font-semibold tracking-tight text-balance">
-    Open-source tools for the creative industry.
+    Open-source professional creative tools.
   </h1>
+  <p
+    class="mt-2 text-balance text-xl font-medium tracking-tight text-neutral-500"
+  >
+    And the engineering knowledge behind them.
+  </p>
+
+  <div class="intro">
+    <p>
+      I'm building a system for making professional creative software on the
+      desktop — open source, local-first, no telemetry, no lock-in. The first
+      tools built on it are for photography, the work I know best.
+    </p>
+
+    <p>
+      But the tools are the proof, not the point. The system underneath — the
+      reusable crates, and every decision of weight reasoned through in the open
+      and written down — is the real work. Building it this way produces the
+      thing the web is quietly losing: engineering knowledge you can trust,
+      because a person stood behind every word of it.
+    </p>
+
+    <p>
+      All of it answers to the same small set of pillars, and all of it is early.
+      There's more written down than there is built, and right now I'm the one
+      building it.
+    </p>
+
+    <p class="pointer">
+      <a href="/why">The longer version of why is here →</a>
+    </p>
+  </div>
 </Base>
+
+<style>
+  .intro {
+    color: var(--color-neutral-700);
+  }
+
+  .intro p {
+    margin-top: 1.25rem;
+    line-height: 1.75;
+  }
+
+  /* The opening paragraph carries the thesis — give it the same slightly raised
+     presence the /why page gives its first line. */
+  .intro p:first-of-type {
+    margin-top: 1.5rem;
+    font-size: 1.125rem;
+    color: var(--color-neutral-900);
+  }
+
+  /* A quiet inline pointer to /why, not a call to action. */
+  .pointer {
+    margin-top: 2rem;
+    font-size: 0.9375rem;
+  }
+
+  .intro a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-neutral-400);
+  }
+
+  .intro a:hover {
+    text-decoration-color: var(--color-neutral-900);
+  }
+</style>
