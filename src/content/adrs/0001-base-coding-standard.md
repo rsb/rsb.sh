@@ -1,7 +1,11 @@
 ---
 title: The base coding standard is the official Rust Style Guide
-status: draft
+status: accepted
 reversibility: bedrock
+number: 1
+dateAccepted: 2026-06-08
+corpusVersion: 1
+drives: ["STD-STYLE"]
 ---
 
 ## Context
