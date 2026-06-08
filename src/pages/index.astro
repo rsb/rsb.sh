@@ -63,8 +63,10 @@ export const prerender = false;
     color: var(--color-neutral-900);
   }
 
-  /* A quiet inline pointer to /why, not a call to action. */
-  .pointer {
+  /* A quiet inline pointer to /why, not a call to action. The .intro p
+     selector (0,3,1) outranks a bare .pointer (0,2,0), so qualify it to win the
+     margin-top override. */
+  .intro p.pointer {
     margin-top: 2rem;
     font-size: 0.9375rem;
   }
