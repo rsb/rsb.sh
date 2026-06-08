@@ -8,7 +8,12 @@ const standards = (await getCollection("standards")).sort((a, b) => a.id.localeC
 const current = Astro.url.pathname.replace(/\/$/, "").split("/").pop();
 ---
 
-<p class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Standards</p>
+<a
+  href="/"
+  class="mb-3 block text-xs font-semibold uppercase tracking-wide text-neutral-400 transition-colors hover:text-neutral-600"
+>
+  Standards
+</a>
 
 {
   standards.length === 0 ? (

@@ -36,7 +36,12 @@ const reversibilityLabel: Record<string, string> = {
 const isEmpty = numbered.length === 0 && drafts.length === 0;
 ---
 
-<p class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">Decisions</p>
+<a
+  href="/"
+  class="mb-3 block text-xs font-semibold uppercase tracking-wide text-neutral-400 transition-colors hover:text-neutral-600"
+>
+  Decisions
+</a>
 
 {
   isEmpty ? (
