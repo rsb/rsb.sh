@@ -2,7 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import ArchitectureSidebar from "../../components/ArchitectureSidebar.astro";
 
-// The Four Pillars — the canonical statement of the values every ecosystem
+// The Four Pillars — the canonical statement of the values every RSB
 // decision is tested against. A single editorial page (not a collection): one
 // stable, slowly-changing document. It lives inside the Architecture section
 // (site-shell restructure): the philosophy that the decisions and standards rest
@@ -20,7 +20,7 @@ export const prerender = false;
 
 <Base
   title="The Four Pillars — rsb.sh"
-  description="The four pillars every RSB ecosystem decision is tested against: reliability, accuracy, performance, and open and free."
+  description="The four pillars every RSB decision is tested against: reliability, accuracy, performance, and open and free."
 >
   <ArchitectureSidebar slot="sidebar" />
 
@@ -28,15 +28,15 @@ export const prerender = false;
     <h1>The Four Pillars</h1>
 
     <p>
-      Every architecture decision in the RSB ecosystem is recorded as an ADR at
+      Every architecture decision in RSB is recorded as an ADR at
       <a href="https://adrs.rsb.sh">adrs.rsb.sh</a>, and those decisions directly
       shape the programming standards at
       <a href="https://standards.rsb.sh">standards.rsb.sh</a>. But the decisions
       and the standards both rest on something more fundamental: these four
-      pillars. The pillars hold up the foundation of everything the ecosystem
-      does. They are deliberately not specific — the ADRs and the standards are
-      where the specifics live — what the pillars do is set the direction and keep
-      the ecosystem stable as it grows.
+      pillars. The pillars hold up the foundation of everything RSB does. They
+      are deliberately not specific — the ADRs and the standards are where the
+      specifics live — what the pillars do is set the direction and keep the work
+      stable as it grows.
     </p>
 
     <p>
@@ -81,7 +81,7 @@ export const prerender = false;
     </p>
 
     <p>
-      This is the foundational pillar: nothing else in the ecosystem matters if it
+      This is the foundational pillar: nothing else RSB builds matters if it
       is wrong, so reliability is settled first and everything else is built on top
       of it. In practice that means every error path is understood, tested, and
       accounted for, and every error is classified by the recovery action it calls
@@ -238,12 +238,12 @@ export const prerender = false;
       Your documents live on your machine. You can work offline, indefinitely, with
       no loss of capability, and when the network is there it enriches the work
       without ever owning it — the local copy is canonical, and the cloud is a
-      synchronized observer, never the source of truth. The RSB ecosystem's
-      infrastructure never receives, processes, stores, or monetizes your data, your
-      metadata, or your work; there is no background sync and no passive
-      transmission of any kind. When you switch on a cloud or AI feature, your
-      credentials go straight to that third-party service — the RSB ecosystem is
-      never in the path between you and your data.
+      synchronized observer, never the source of truth. RSB's infrastructure
+      never receives, processes, stores, or monetizes your data, your metadata, or
+      your work; there is no background sync and no passive transmission of any
+      kind. When you switch on a cloud or AI feature, your credentials go straight
+      to that third-party service — RSB is never in the path between you and your
+      data.
     </p>
 
     <p>
@@ -262,7 +262,7 @@ export const prerender = false;
       lets the work fund and grow the freedom that produced it. They are not four
       standards to satisfy and set down. They are four loops to keep running, and
       what they have in common is a direction: each pass through is meant to leave
-      the ecosystem more reliable, more accurate, faster, and freer than the one
+      the work more reliable, more accurate, faster, and freer than the one
       before — never the reverse.
     </p>
   </article>
