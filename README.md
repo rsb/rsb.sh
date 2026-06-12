@@ -12,7 +12,7 @@ Content is authored in markdown / MDX and processed through Astro's content coll
 
 ## Content and code
 
-The application code in this repository is licensed under MIT or Apache 2.0, consistent with the rest of the work at [github.com/rsb](https://github.com/rsb). This covers the Astro scaffolding, the layouts, the components specific to the site, and the build infrastructure.
+The application code in this repository is licensed under MIT or Apache 2.0. This covers what the repository actually contains — the Astro scaffolding, the layouts, the components specific to the site, and the build infrastructure. RSB Lab itself is licensed under the GNU GPL (version 3 or later) in its own repository; the site is the record of that work, not part of it.
 
 The written content on the site — the essays, the architecture reference, the decisions and standards — is licensed under [Creative Commons BY-NC 4.0](LICENSE-CC). This allows the writing to be quoted, shared, translated, and referenced freely with attribution, while reserving commercial republication and use.
 
