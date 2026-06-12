@@ -1,0 +1,245 @@
+---
+// The RSB Lab architecture diagram — the dependency DAG drawn as generality
+// bands, ported from the planning repo's architecture deck (slide 2) into the
+// site's visual language (ticket #40). Most general at the top (rsb-core, the
+// root), most specific at the bottom (Lab, the leaf); ▲ marks the reference
+// direction — child → parent, specific → general. It is a DAG, not a tree:
+// cross-branch references are legal and a crate may have multiple parents.
+//
+// CSS-only by design (no JS in v1, per the ticket): every box is an anchor
+// into the per-crate reference sections on the architecture page. The deck's
+// click-panels became that page content.
+---
+
+<figure class="dag" aria-label="RSB Lab architecture diagram — the crate dependency DAG ordered by generality">
+  <figcaption class="edge-note">
+    <span>most general — the root</span>
+    <span>references point up &#9650;</span>
+  </figcaption>
+
+  <div class="band">
+    <p class="band-label">Universal base — unrelated roots permitted; currently one</p>
+    <div class="row">
+      <a class="box" href="#rsb-core">
+        <span class="name">rsb-core</span>
+        <span class="role">root: trait Fail · Chain · Rendered · mod report · annex pattern available (zero occupants)</span>
+      </a>
+    </div>
+  </div>
+
+  <p class="arrow" aria-hidden="true">&#9650;</p>
+
+  <div class="band">
+    <p class="band-label">The contract</p>
+    <div class="row">
+      <a class="box" href="#rsb-shell">
+        <span class="name">rsb-shell — the pump</span>
+        <span class="role">View&lt;Ctx&gt; · Operator&lt;Ctx&gt; + registry + typed args · pointer capture + step machinery · opaque topics · job door · phase hook · six-phase order</span>
+      </a>
+    </div>
+  </div>
+
+  <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;&ensp;&#9650;</p>
+
+  <div class="band">
+    <p class="band-label">Realizations · the recipe family · domains</p>
+    <div class="row stack">
+      <a class="box" href="#rsb-shell-sync">
+        <span class="name">rsb-shell-sync</span>
+        <span class="role">winit / wgpu · loop · areas · workers · dispatch + tripwire</span>
+      </a>
+      <div class="cluster">
+        <p class="cluster-label">Recipe family · data tier — references no shell crate</p>
+        <div class="row">
+          <a class="box" href="#graph-engine">
+            <span class="name">graph engine</span>
+            <span class="role">name TBD · generations · restore-diff-mark · all operations</span>
+          </a>
+          <a class="box" href="#rsb-pixel">
+            <span class="name">rsb-pixel</span>
+            <span class="role">value types · the payload seam</span>
+          </a>
+          <a class="box" href="#rsb-photo-nodes">
+            <span class="name">rsb-photo-nodes</span>
+            <span class="role">develop/ · composite/ · transition/ — one crate, three peer modules</span>
+          </a>
+          <a class="box" href="#rsb-photo-recipe">
+            <span class="name">rsb-photo-recipe</span>
+            <span class="role">the authored model</span>
+          </a>
+          <a class="box" href="#rsb-photo-session">
+            <span class="name">rsb-photo-session</span>
+            <span class="role">ephemera + undo instance</span>
+          </a>
+          <a class="box" href="#photo-ops">
+            <span class="name">photo-ops</span>
+            <span class="role">verbs · headless</span>
+          </a>
+        </div>
+      </div>
+      <div class="cluster domains">
+        <p class="cluster-label">Domains</p>
+        <div class="row">
+          <a class="box" href="#rsb-raw"><span class="name">rsb-raw</span></a>
+          <a class="box" href="#rsb-post"><span class="name">rsb-post</span></a>
+          <a class="box" href="#rsb-color"><span class="name">rsb-color</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;</p>
+
+  <div class="band">
+    <p class="band-label">Context members (runtime census — not all are crates)</p>
+    <div class="row">
+      <a class="box" href="#ctx-recipe">
+        <span class="name">recipe</span>
+        <span class="role">authored · generations</span>
+      </a>
+      <a class="box" href="#ctx-evaluation">
+        <span class="name">evaluation</span>
+        <span class="role">sourced + derived tiers</span>
+      </a>
+      <a class="box" href="#ctx-session">
+        <span class="name">session</span>
+        <span class="role">selection · ephemera · undo stack</span>
+      </a>
+      <a class="box" href="#ctx-report-stream">
+        <span class="name">report stream</span>
+        <span class="role">from rsb-core</span>
+      </a>
+      <a class="box dimmed" href="#ctx-extensions">
+        <span class="name">… app extensions</span>
+        <span class="role">census = floor, not ceiling</span>
+      </a>
+    </div>
+  </div>
+
+  <p class="arrow" aria-hidden="true">&#9650;</p>
+
+  <div class="band">
+    <p class="band-label">View tier · app</p>
+    <div class="row">
+      <a class="box grow-md" href="#view-tier">
+        <span class="name">view-support &#8594; editor crates (one per editor)</span>
+        <span class="role">implement View&lt;Ctx&gt; · keymaps as data via imported verb constants · never reference each other</span>
+      </a>
+      <a class="box grow-sm" href="#lab">
+        <span class="name">Lab — the leaf</span>
+        <span class="role">main · concrete Ctx · admission · keymaps · failure policy</span>
+      </a>
+    </div>
+  </div>
+
+  <figcaption class="edge-note">
+    <span>most specific — the leaf</span>
+    <span>children &#9660;</span>
+  </figcaption>
+</figure>
+
+<style>
+  .dag {
+    margin: 1.5rem 0 0;
+  }
+
+  .edge-note {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-400);
+    margin: 0.375rem 0;
+  }
+
+  .band {
+    border: 1px solid var(--color-neutral-200);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.75rem 0.75rem;
+    background: var(--color-neutral-50);
+  }
+
+  .band-label,
+  .cluster-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-400);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  /* The deck spread this band across three columns at slide width; at the
+     site's column width the groups stack vertically instead. */
+  .row.stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Pair up the family boxes (two per row at full column width); domain
+     boxes are name-only and fit three across. */
+  .cluster .box {
+    flex: 1 1 16rem;
+  }
+
+  .cluster.domains .box {
+    flex: 1 1 8rem;
+  }
+
+  .cluster {
+    border: 1px dashed var(--color-neutral-300);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.625rem 0.625rem;
+  }
+
+  .box {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 0.375rem;
+    background: white;
+    padding: 0.5rem 0.625rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .box:hover {
+    border-color: var(--color-neutral-900);
+  }
+
+  .box.dimmed {
+    opacity: 0.7;
+  }
+
+  /* Declared after .box so the weights win the cascade. */
+  .box.grow-md { flex: 1.2 1 14rem; }
+  .box.grow-sm { flex: 1 1 11rem; }
+
+  .name {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    color: var(--color-neutral-900);
+  }
+
+  .role {
+    font-size: 0.6875rem;
+    line-height: 1.45;
+    color: var(--color-neutral-500);
+  }
+
+  .arrow {
+    margin: 0.25rem 0;
+    text-align: center;
+    font-size: 0.625rem;
+    color: var(--color-neutral-400);
+  }
+</style>
