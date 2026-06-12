@@ -6,13 +6,13 @@ reversibility: bedrock
 
 ## Context
 
-ADR-0001 settled how RSB Ecosystem code looks, and drew a deliberate line while
+ADR-0001 settled how RSB code looks, and drew a deliberate line while
 doing it: the mechanical basics are deferred to community consensus, and the
-places where the RSB Ecosystem holds a genuine opinion — error handling, module
+places of genuine opinion — error handling, module
 and dependency relationships, API design — are each reserved for their own later
 ADR. This is the first of those opinionated decisions to be recorded. ADR-0001
-set the precedent for decisions the RSB Ecosystem _defers_; this ADR sets the
-precedent for decisions the RSB Ecosystem _owns_.
+set the precedent for decisions RSB _defers_; this ADR sets the
+precedent for decisions RSB _owns_.
 
 Error handling is the right place to start holding an opinion, because it is
 where two of the pillars stop being abstract. ADR-0001 already observed that the
@@ -25,11 +25,9 @@ The way failure is represented in the code is therefore not an implementation
 detail downstream of correctness — it is the surface on which reliability and
 accuracy are either visible or absent.
 
-This matters more for the RSB Ecosystem than for an application, because of what
-the RSB Ecosystem ships. The crates are the product. A crate's failures are part
-of the contract a downstream consumer programs against, across a published
-version boundary that cannot be refactored on both sides at once. A second
-consumer — the body of engineering knowledge the RSB Ecosystem exists to teach —
+This matters twice over. The code is built as small crates with enforced seams,
+so a crate's failures are part of the contract its neighbours program against.
+And a second consumer — the body of engineering knowledge RSB exists to teach —
 reads those same failure paths as worked examples. Both audiences are served by
 the same decision: failures that are honest, legible values rather than hidden
 control flow.
@@ -38,7 +36,7 @@ Rust gives this decision its starting point for free. `Result` and `Option` make
 returned failure the path of least resistance, and the language has no
 exceptions. So the decision here is not "use `Result`" — that is the language
 default and records no real choice. The decision is the stance that gives the
-default its teeth: what failure _is_ in RSB Ecosystem code, what it is not, and
+default its teeth: what failure _is_, what it is not, and
 where the boundary sits between a failure that is a value and a failure that is a
 bug.
 
@@ -52,7 +50,7 @@ revised, or replaced.
 
 ## Decision
 
-In the RSB Ecosystem, **errors are values.** A function whose work can fail says
+**Errors are values.** A function whose work can fail says
 so in its signature and returns the failure as an ordinary value the caller can
 inspect, propagate, or act on. This stance has four parts.
 
@@ -90,7 +88,7 @@ than aspirational: a failure that was never enumerated cannot be returned as a
 considered value, cannot have its panic-or-return boundary placed deliberately,
 and cannot have its substitutions surfaced.
 
-Together these establish that a failure in RSB Ecosystem code is a thing the
+Together these establish that a failure is a thing the
 program holds and reasons about, not a thing it suffers. The error value is as
 much a part of an operation's interface as its successful result, and is given
 the same care.
@@ -103,7 +101,7 @@ the same care.
   on, and that deliberateness is the point: the cost buys a failure surface a
   caller can rely on and a reader can audit.
 
-- The decision is bedrock for everything the RSB Ecosystem builds. The error
+- The decision is bedrock for everything RSB builds. The error
   type architecture, the propagation and message conventions, and any
   classification of failures by recovery action are all later decisions that stand
   _on_ this one — they choose mechanisms for a stance that is already fixed.
@@ -111,7 +109,7 @@ the same care.
   re-architecture beneath them, which is why it is treated as settled ground.
 
 - It sets the precedent ADR-0001 anticipated for owned opinion. This is the first
-  ADR where the RSB Ecosystem holds a position rather than deferring to consensus,
+  ADR where RSB holds a position rather than deferring to consensus,
   and it establishes the pattern: an opinion is earned by tracing it to a pillar,
   stated as a principle that names no mechanism, and left clean so that the
   mechanisms beneath it can be decided, and changed, without disturbing it.
@@ -127,7 +125,7 @@ the same care.
   review, so that the strength of each rule is visible instead of assumed.
 
 - The principle is thin on its own, deliberately. Following it produces code that
-  returns honest failures, but not yet code that meets the RSB Ecosystem's full
+  returns honest failures, but not yet code that meets the full
   error-handling standard — the error type's shape, the diagnostic content a
   failure carries, and how a consumer classifies it are the substance, and they
   live in the later ADRs for which this is only the foundation.
@@ -137,7 +135,7 @@ the same care.
 - **Record "use `Result`" as the decision.** Rejected as a non-decision. Returning
   `Result` is the Rust default and rejects no real alternative — the language has
   no exceptions to choose against. An ADR that recorded only this would document
-  the language, not a position the RSB Ecosystem holds. The genuine decision is the
+  the language, not a position. The genuine decision is the
   stance around the default: the panic boundary, no silent substitution, and
   failure-surfaces-first are the parts a reader could not have inferred from
   "errors are values" alone, and they are where this ADR's weight sits.
@@ -156,19 +154,18 @@ the same care.
   principle.** Rejected, and worth naming explicitly because it is the most
   tempting inclusion. A taxonomy that sorts failures by what a consumer should do
   about them — abort, retry, skip, report — is shaped by the _consumer's_ recovery
-  verbs, and those are application-shaped, not ecosystem-shaped. A library crate
+  verbs, and those are application-shaped, not library-shaped. A library crate
   has no main loop to skip a frame in and no launch to abort. Baking such a
-  taxonomy into this foundational, ecosystem-wide principle would impose one
-  application's recovery vocabulary on every crate and every downstream repo that
-  inherits it. Recovery classification is deferred to where the recovery actually
-  lives — a future application repository, or an ecosystem crate specific enough to
-  own that concern — and is deliberately absent here.
+  taxonomy into this foundational principle would impose the app's recovery
+  vocabulary on every crate beneath it. Recovery classification is deferred to
+  where the recovery actually lives — the application tier — and is deliberately
+  absent here.
 
 - **Defer the principle until there is code to motivate it.** Rejected on the
   same sequencing ground as ADR-0001. This principle governs the first error any
   code will encounter; deciding it afterward means the earliest code is written
   with no stance on failure and reconciled later — exactly the compounding "fix it
-  later" debt the pillars reject. The RSB Ecosystem cannot write its first crate
+  later" debt the pillars reject. RSB cannot write its first crate
   without an answer to what a failure is, which is why this decision comes before
   the crate, not after it.
 
