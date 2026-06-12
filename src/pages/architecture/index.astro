@@ -1,13 +1,17 @@
 ---
 import Base from "../../layouts/Base.astro";
 import ArchitectureSidebar from "../../components/ArchitectureSidebar.astro";
+import LabArchitectureDiagram from "../../components/LabArchitectureDiagram.astro";
 
-// The Architecture section landing / Overview (site-shell restructure). The
-// section gathers the philosophy (The Four Pillars) and points out to the two
-// host-routed surfaces where the specifics live — Decisions (adrs.) and Standards
-// (standards.). The full architecture reference (the shells/services/domains
-// decomposition) is not yet published; this Overview is honest about that and
-// becomes an Astro content collection per launch-artifacts §3 when it lands.
+// The Architecture section landing — the RSB Lab architecture reference
+// (ticket #40). The diagram is the dependency DAG as resolved through the
+// design arcs, ported from the planning repo's architecture deck into the
+// site's visual language; every box anchors into the per-crate reference
+// sections below, which carry each ruling, its why, and its relation to the
+// north star (Blender) with file:line evidence. Pre-ADR working architecture,
+// revised in place — the visible last-updated line is the honesty mechanism
+// (launch-artifacts §3's lastUpdated rule, honored manually until this grows
+// into the architecture content collection).
 //
 // On-demand (not prerendered) so the host-routing middleware runs for it (issue
 // #2): a prerendered page is served from the static-assets layer before
@@ -18,7 +22,7 @@ export const prerender = false;
 
 <Base
   title="Architecture — rsb.sh"
-  description="How the RSB ecosystem is built: the four pillars every decision is tested against, the decisions themselves, and the standards they imply."
+  description="The RSB Lab architecture: the crate dependency DAG ordered by generality, each crate's ruling and its relation to the north star, recorded ahead of the ADRs it will become."
 >
   <ArchitectureSidebar slot="sidebar" />
 
@@ -26,7 +30,8 @@ export const prerender = false;
     <h1>Architecture</h1>
 
     <p>
-      This is where the RSB ecosystem explains how it is built. It rests on
+      RSB ships Lab — a free, professional photo editor for the desktop — and this
+      is how Lab is built. The architecture rests on
       <a href="/architecture/pillars">the four pillars</a> every decision is tested
       against; the decisions themselves are recorded as ADRs at
       <a href="https://adrs.rsb.sh">adrs.rsb.sh</a>, and the rules those decisions
@@ -35,11 +40,384 @@ export const prerender = false;
     </p>
 
     <p>
-      The full architecture reference — the shells, services, and domains the
-      applications are built from — is still being written. For now this section
-      holds the pillars and points you to the decisions and standards. It will grow
-      as the work does.
+      What follows is the working architecture: the crate map as resolved through
+      the design arcs, each crate's ruling, and its relation to the north star —
+      Blender, the standing proof that free creative software can be
+      professional-grade. Where Blender's design is adopted, that is recorded;
+      where it is corrected or consciously rejected, the reason the fence was
+      there is stated first. One rule of the house runs through all of it:
+      <strong>move responsibility from author discipline into structure.</strong>
     </p>
+
+    <h2 id="diagram">RSB Lab Architecture Diagram</h2>
+
+    <p class="meta">
+      Last updated 2026-06-11 · pre-ADR working architecture — the decisions
+      below are blessed but not yet promoted to the decision record · one name
+      still pending (the graph engine's).
+    </p>
+
+    <p>
+      Code in RSB is organized on a single axis: <strong>generality</strong>. The
+      most general articulation sits at the top; the deeper you go, the more
+      specific the code becomes. References travel in exactly one direction —
+      upward, from specific to general; a child may reference its parent, the
+      parent may never reference its child. The relation is a DAG, not a tree:
+      a crate may reference more-general crates across branches and may have
+      multiple parents. Peers — crates of equal generality — never reference
+      each other; they meet up, in a contract crate more general than both, or
+      down, in a more-specific crate that references both.
+    </p>
+
+    <LabArchitectureDiagram />
+
+    <p>
+      Every box links to its ruling below. An edge being <em>legal</em> never
+      makes it <em>granted</em>: every crate's dependency cone is individually
+      designed, declared, and asserted in CI, so an edge's absence is a checkable
+      fact rather than a hope.
+    </p>
+
+    <h2 id="universal-base">The universal base</h2>
+
+    <h3 id="rsb-core"><code>rsb-core</code></h3>
+    <p>
+      The root. It depends on nothing; everything else may depend on it — that
+      asymmetry is the definition of the layer. The crate root holds the error
+      contract: <code>trait Fail: std::error::Error</code> (an honest
+      <code>source()</code> chain, a grammar-conformant <code>Display</code>, and
+      deliberately no blanket impl — implementing the trait is the opt-in act of
+      accepting its obligations), with <code>Chain</code> walking the cause chain
+      and <code>Rendered</code> producing the Go-style
+      <code>outer: middle: leaf</code> reading. <code>mod report</code> is the one
+      child namespace, re-derived contract-first — the prototype's app-shaped
+      domain enum does not survive. The annex pattern (feature-fenced namespaces
+      for subject-generic machinery) is available within the crate and currently
+      has zero occupants.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> plays the role no single Blender module
+      owns — Blender's error handling is C return codes and
+      <code>BKE_report</code>. The chain rendering and the contract-trait shape
+      are RSB's own decisions.
+    </aside>
+
+    <h2 id="contract">The contract</h2>
+
+    <h3 id="rsb-shell"><code>rsb-shell</code> — the pump</h3>
+    <p>
+      The contract crate; the pump's home. Its clause census is complete:
+      <code>View&lt;Ctx&gt;</code> (event / listener / draw, generic over an
+      app-defined Context type — subject-neutrality by type parameter, checked at
+      compile time); <code>Operator&lt;Ctx&gt;</code> with a registry the app
+      populates and typed argument structs; pointer capture and the step
+      machinery — load-bearing, because undo granularity hangs off it; opaque
+      notifier topics — the shell routes what it cannot read; the job door, with
+      completed and canceled as distinct anticipated outcomes; the per-iteration
+      phase hook; and the six-phase loop order.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> the window manager's three registries
+      (space types, operator types, keymaps) made subject-neutral via the Ctx
+      type parameter — the indirection Blender intended but could not hold by
+      convention (<code>wm_draw.cc</code> calls <code>ED_view3d_*</code>
+      directly), made mechanical here by crate boundaries.
+    </aside>
+
+    <h2 id="realizations">Realizations, the recipe family, and the domains</h2>
+
+    <h3 id="rsb-shell-sync"><code>rsb-shell-sync</code></h3>
+    <p>
+      The desktop realization: winit/wgpu boundary modules, the loop, windows and
+      areas, the rendering protocol, the job supervisor (eight callbacks in
+      current Blender — completed and canceled kept as distinct paths), dispatch
+      execution, and the tripwire — a debug assertion that no generation moves
+      while no exec or capture is open.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> <code>WM_main</code>
+      (<code>wm.cc:598</code>) plus GHOST, with the loop's hardcoded depsgraph
+      flush replaced by the subject-neutral phase hook.
+    </aside>
+
+    <h3 id="graph-engine">The graph engine <span class="pending">(name pending — the one placeholder left)</span></h3>
+    <p>
+      Generic graph machinery: nodes, sockets, edges, evaluation, a
+      type-parametric connection API — it knows nothing of photography. The
+      design arcs grew its mandate three ways: generation counters and dirty
+      marks on every mutation (the substrate of pull-based invalidation);
+      efficient clone, restore-with-diff-and-mark, and shared-when-unchanged
+      snapshots (undo as just another mutation); and <em>all operations</em> —
+      delete, duplicate-with-remap, connect-with-validation — as the engine's
+      mutation API. Named verbs never live here.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> the <code>bNodeTree</code> machinery,
+      with engine-owned change tracking (where Blender's own
+      <code>node_tree_update.cc</code> is heading) and connection legality
+      checked at the single mutation door against registered signatures —
+      <code>validate_link</code>'s job done at one can't-forget site instead of
+      scattered call sites.
+    </aside>
+
+    <h3 id="rsb-pixel"><code>rsb-pixel</code></h3>
+    <p>
+      Pixel-buffer value types: <code>LinearBuffer</code> and
+      <code>RgbBuffer</code> — distinct per stage, so the develop/composite
+      boundary is enforced by the payload itself. Doubly load-bearing: the types
+      are both the seam enforcement and the signature vocabulary. The crate
+      plausibly references nothing — another root, legal on principle.
+    </p>
+    <p>
+      The name is the naming law's fourth application. RSB already holds other
+      "image" concepts — the image file, the evaluated display image, the image
+      the user means — so <code>rsb-image</code> wore a name more general than
+      its contents. <code>rsb-pixel</code> passes from both directions: the
+      contents are exactly the pixel vocabulary, and the bare general name is
+      held by the genuinely general artifact.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> its equivalent is named
+      <code>imbuf</code> — after the buffer type it holds, not "image." The
+      contents-accurate-name convention, corroborated.
+    </aside>
+
+    <h3 id="rsb-photo-nodes"><code>rsb-photo-nodes</code></h3>
+    <p>
+      The photo node vocabulary: one crate, with <code>develop/</code>,
+      <code>composite/</code>, and <code>transition/</code> as peer modules. Each
+      defines node kinds — typed evaluation code plus socket signatures
+      registered as data through app admission. The develop/composite seam is
+      held twice: rsb-pixel's distinct payload types (compile-time,
+      layout-independent) and module fences asserted by tooling —
+      <code>develop/</code> never references <code>composite/</code> and vice
+      versa. Cross-stage connection is refused at the single mutation door and
+      unrepresentable in the derived typed graph.
+    </p>
+    <p>
+      Why one crate: the transition module references neither family — socket
+      kinds are shared value types, so its signature spans payloads
+      (Linear&nbsp;→&nbsp;Rgb), not crates — and no cut in the tier is forced by
+      the crate-justification ladder. <code>transition/</code> is a peer of
+      both because its subject is the boundary itself; burying it in
+      <code>composite/</code> would let one stage silently own the seam.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation (verified):</strong> the same shape — one nodes
+      subsystem with per-family sub-libraries under one umbrella
+      (<code>nodes/CMakeLists.txt:188-213</code>), shared vocabulary at the root
+      (<code>NOD_socket_declarations.hh</code>). Blender's boundary node is
+      downstream-owned (<code>node_composite_render_layers.cc</code>) — fence
+      examined: it sources from outside the graph entirely, so the
+      downstream-ownership post does not transfer; ours converts within one
+      graph and sits as a peer.
+    </aside>
+
+    <h3 id="rsb-photo-recipe"><code>rsb-photo-recipe</code></h3>
+    <p>
+      The authored model — the graph, source references, parameters; what the
+      user makes. It never holds a pixel buffer. It is what save writes, what
+      undo snapshots, what navigate replaces. It implements nothing
+      shell-shaped, is pumped by nobody, and is consulted through Ctx.
+    </p>
+    <p>
+      Its representation is a <strong>description</strong>: node kinds by name,
+      edges, and typed parameter <em>values</em> — never typed node code. Every
+      typed executable structure is the evaluation object's derived, cached
+      artifact, rebuilt via generations. Unknown kinds are preserved, not
+      understood — a recipe survives node kinds its reader doesn't know, so
+      <code>.rsb</code> longevity is structural rather than a format promise.
+      The cone is engine + rsb-core only, which keeps the crate near the
+      family's root and cheap for views, verbs, session, and evaluation to
+      reference.
+    </p>
+    <p>
+      The name carries the naming law twice: "document" was renamed when the
+      <code>.rsb</code> was understood to encode a <strong>recipe</strong> — a
+      complete, reproducible description of how to get from this RAW to this
+      result — and "recipe" alone over-claims, so the crate is
+      <code>rsb-photo-recipe</code>, with bare <code>rsb-recipe</code> reserved,
+      unbuilt, until a second recipe kind exists.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> Main (<code>BKE_main.hh</code>) —
+      authored data only — with a stricter razor: the recipe test ejects even
+      selection and layout, which Blender's Main carries. The description
+      representation is verified against the authored
+      <code>bNodeTree</code>: nodes identified by idname, "stored in files to
+      allow retrieving the node type" (<code>DNA_node_types.h:1644</code>);
+      unknown idnames fall back to undefined types and round-trip intact
+      (<code>node.cc:2574</code>); typed executable forms are derived and
+      regenerated per change
+      (<code>NOD_geometry_nodes_lazy_function.hh:8-20</code>).
+    </aside>
+
+    <h3 id="rsb-photo-session"><code>rsb-photo-session</code></h3>
+    <p>
+      The session crate: the selection set, the active node, in-flight gesture
+      ephemera, and the undo-stack instance — with the step-stack machinery
+      private to this crate. The stack was never forced into a shared home:
+      dispatch pushes steps through Ctx obligations and never needs the concrete
+      type. If a second family ever arrives, the promotion target is a fenced
+      namespace in rsb-core, not a new crate.
+    </p>
+    <p>
+      The cone is engine + rsb-core. The recipe is deliberately <em>not</em> in
+      the cone — pruning on recipe-changed takes an iterator of extant node IDs,
+      not the recipe; the crate's whole vocabulary is engine IDs.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> none to consult on placement — a
+      monolith has no crate boundaries. The substance fences (selection saved in
+      the file, the window manager owning the undo stack) were examined and
+      discharged in the recipe and operator rulings below their respective
+      sections' sources.
+    </aside>
+
+    <h3 id="photo-ops"><code>photo-ops</code> — the verbs</h3>
+    <p>
+      All operators of the photo family: named verbs executing over recipe +
+      session, with typed argument structs. The operations/operators cut decides
+      what lives where: <strong>operations</strong> (delete,
+      duplicate-with-remap, connect-with-validation) are functions on the graph
+      and belong to the engine's mutation API; <strong>operators</strong> — even
+      <code>node.delete</code> — take their operands from selection and wear
+      names in the family's error grammar, so every one lives here. There is no
+      engine-side verb tier and no verb-trait crate: photo-ops exports plain
+      functions, argument structs, and name constants; rsb-shell defines the
+      registry plumbing; the app composes the two. The cone provably excludes
+      rsb-shell, view-support, and the GPU — "verbs are headless" is a CI edge
+      assertion, not a hope.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation (verified):</strong> the same cut exists — kernel
+      operations (<code>node_remove_node</code>, <code>BKE_node.hh:749</code>)
+      called by editor operators that bind selection
+      (<code>node_edit.cc:1693</code>). Adopted; what is corrected is only where
+      the operator half lives. Blender puts operators inside editors, which is
+      why headless <code>bpy.ops</code> needs context-override incantations —
+      our placement is the generality gradient's correction of the north star.
+    </aside>
+
+    <h3 id="rsb-raw"><code>rsb-raw</code></h3>
+    <p>
+      The RAW decode domain: a safe wrapper over the libraw FFI repository —
+      which is its own repo for entirely intrinsic reasons: a C++ build profile,
+      heavy CI, and a genuine external audience. Whether domain crates and
+      node-family crates are distinct or the same crates is still open.
+    </p>
+
+    <h3 id="rsb-post"><code>rsb-post</code></h3>
+    <p>The post-processing domain: the algorithms composite nodes invoke.</p>
+
+    <h3 id="rsb-color"><code>rsb-color</code></h3>
+    <p>
+      Color management, invoked on the way to the shell's surface — one of the
+      three pieces the dissolved "render layer" decomposed into (viewport
+      transform is view behavior; inspect is a view feature; "render" is the
+      traffic across the pump seam, not a layer).
+    </p>
+
+    <h2 id="context">The Context census</h2>
+
+    <p>
+      The pump's <code>Ctx</code> type parameter has a closed census of four
+      members — recipe, evaluation, session, and the report stream — plus
+      whatever the app adds. Every member is generation-tracked; no code
+      anywhere fires a notification by hand. Once per loop iteration, the phase
+      flush diffs all generations and emits coalesced topics.
+    </p>
+
+    <h3 id="ctx-recipe">recipe</h3>
+    <p>
+      The authored member: the rsb-photo-recipe instance. Mutated only through
+      the single door — verbs, or capture-scoped view mutation during a gesture
+      — and snapshotted per undo step.
+    </p>
+
+    <h3 id="ctx-evaluation">evaluation</h3>
+    <p>
+      Two internally distinct tiers: <strong>sourced</strong> (decoded sensor
+      data, EXIF — invalidated by the file changing, seconds to rebuild) and
+      <strong>derived</strong> (evaluated buffers — invalidated by edits,
+      milliseconds to rebuild). Keeping them distinct is what guarantees editing
+      and undo never re-decode. The evaluation object owns cache policy, is
+      flushed in the phase hook, and bumps generations from worker completions.
+      Its crate home is still to be decided.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> the depsgraph's evaluated copies —
+      modern term "copy-on-eval" (<code>DEG_depsgraph_query.hh</code>) — plus
+      Blender's image-pixel caching: paths authored, pixels reloaded, never
+      written to the file.
+    </aside>
+
+    <h3 id="ctx-session">session</h3>
+    <p>
+      Shared ephemera: the selection set and active node, in-flight gesture
+      state, and the undo-stack instance. The membership test: state multiple
+      views must agree on that does not change the output. Fires
+      selection-changed via generations; subscribes to recipe-changed to prune
+      dangling selection; never saved. Its crate home is
+      <a href="#rsb-photo-session"><code>rsb-photo-session</code></a>.
+    </p>
+
+    <h3 id="ctx-report-stream">report stream</h3>
+    <p>
+      From rsb-core. Verbs return <code>Result&lt;_, E: Fail&gt;</code>; the
+      dispatcher reports failures in grammar form — the verb registry and the
+      failure vocabulary are one taxonomy. A report-console view's subject is
+      this stream: a view crate referencing rsb-shell and rsb-core only, the
+      view rule generalizing cleanly.
+    </p>
+
+    <h3 id="ctx-extensions">App extensions — the census is a floor, not a ceiling</h3>
+    <p>
+      The four members are what the family requires. The app's concrete Ctx —
+      its one piece of real code — may add members: layout state, app
+      preferences. UI-state verbs (toggle panel, switch workspace) are app-tier
+      operators over those extensions, dispatched by the same machinery.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> <code>SCREEN_OT_*</code> operators live
+      in the screen editor, not subject editors — the same separation, expressed
+      as Ctx extension instead of a special editor.
+    </aside>
+
+    <h2 id="view-app">The view tier and the app</h2>
+
+    <h3 id="view-tier">view-support and the editor crates</h3>
+    <p>
+      A view <em>is</em> the editor. One crate per editor; editors never
+      reference each other — coordination flows through the document and
+      topics, and the isolation is mechanical, held by Cargo's acyclicity
+      rather than review. Each editor implements <code>View&lt;Ctx&gt;</code>
+      and consults its subject through Ctx; view-support holds the shared
+      widgets at the top of the tier. Editor crates ship their default keymaps
+      as data, binding keys to verb-name constants imported from the verbs
+      crate — a typo is a compile error; the app composes keymaps and validates
+      resolution.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> <code>editors/space_*</code> plus
+      <code>editors/interface</code> — minus the <code>ED_view3d_*</code> bleed,
+      pervasive in Blender and unrepresentable here.
+    </aside>
+
+    <h3 id="lab">Lab — the leaf</h3>
+    <p>
+      The app is composition only: <code>main</code>; the concrete Ctx type
+      (census plus extensions); admission of view kinds <em>and</em> operator
+      sets; keymap composition and resolution validation; failure policy — what
+      abort, retry, and skip mean for this product; packaging. Bootstrap is
+      inversion: the app assembles and calls <code>run(…)</code>, and the shell
+      is sovereign thereafter. The app is the only place where a shell
+      realization and the document meet.
+    </p>
+    <aside class="blender">
+      <strong>Blender relation:</strong> <code>creator.c</code>, with admission
+      replacing global registries.
+    </aside>
   </article>
 </Base>
 
@@ -57,9 +435,61 @@ export const prerender = false;
     text-wrap: balance;
   }
 
+  .architecture h2 {
+    margin-top: 3rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-neutral-900);
+  }
+
+  .architecture h3 {
+    margin-top: 2rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    color: var(--color-neutral-900);
+  }
+
+  .architecture h3 code {
+    font-size: 0.9375rem;
+  }
+
   .architecture p {
-    margin-top: 1.25rem;
+    margin-top: 1rem;
     line-height: 1.75;
+  }
+
+  .architecture .meta {
+    font-size: 0.8125rem;
+    color: var(--color-neutral-500);
+  }
+
+  .architecture .pending {
+    font-weight: 400;
+    font-size: 0.8125rem;
+    color: var(--color-neutral-500);
+  }
+
+  .architecture code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+    color: var(--color-neutral-800);
+  }
+
+  .architecture aside.blender {
+    margin-top: 0.875rem;
+    border-left: 2px solid var(--color-neutral-200);
+    padding-left: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--color-neutral-500);
+  }
+
+  .architecture aside.blender code {
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
   }
 
   .architecture a {
