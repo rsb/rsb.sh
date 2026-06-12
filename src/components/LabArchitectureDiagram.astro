@@ -9,134 +9,237 @@
 // CSS-only by design (no JS in v1, per the ticket): every box is an anchor
 // into the per-crate reference sections on the architecture page. The deck's
 // click-panels became that page content.
+//
+// `compact` renders the five-band spine for the landing page: name-only boxes,
+// no role text, no Context band, no domains — half the height, unmistakably
+// the same diagram. `hrefBase` prefixes the box anchors so the compact variant
+// can link cross-page ("/architecture#rsb-core") while the full one stays
+// same-page ("#rsb-core").
+interface Props {
+  compact?: boolean;
+  hrefBase?: string;
+}
+
+const { compact = false, hrefBase = "" } = Astro.props;
+const a = (anchor: string) => `${hrefBase}#${anchor}`;
 ---
 
-<figure class="dag" aria-label="RSB Lab architecture diagram — the crate dependency DAG ordered by generality">
-  <figcaption class="edge-note">
-    <span>most general — the root</span>
-    <span>references point up &#9650;</span>
-  </figcaption>
+{
+  compact ? (
+    <figure
+      class="dag compact"
+      aria-label="RSB Lab architecture diagram — the crate dependency DAG ordered by generality, compact view"
+    >
+      <figcaption class="edge-note">
+        <span>most general — the root</span>
+        <span>references point up &#9650;</span>
+      </figcaption>
 
-  <div class="band">
-    <p class="band-label">Universal base — unrelated roots permitted; currently one</p>
-    <div class="row">
-      <a class="box" href="#rsb-core">
-        <span class="name">rsb-core</span>
-        <span class="role">root: trait Fail · Chain · Rendered · mod report · annex pattern available (zero occupants)</span>
-      </a>
-    </div>
-  </div>
-
-  <p class="arrow" aria-hidden="true">&#9650;</p>
-
-  <div class="band">
-    <p class="band-label">The contract</p>
-    <div class="row">
-      <a class="box" href="#rsb-shell">
-        <span class="name">rsb-shell — the pump</span>
-        <span class="role">View&lt;Ctx&gt; · Operator&lt;Ctx&gt; + registry + typed args · pointer capture + step machinery · opaque topics · job door · phase hook · six-phase order</span>
-      </a>
-    </div>
-  </div>
-
-  <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;&ensp;&#9650;</p>
-
-  <div class="band">
-    <p class="band-label">Realizations · the recipe family · domains</p>
-    <div class="row stack">
-      <a class="box" href="#rsb-shell-sync">
-        <span class="name">rsb-shell-sync</span>
-        <span class="role">winit / wgpu · loop · areas · workers · dispatch + tripwire</span>
-      </a>
-      <div class="cluster">
-        <p class="cluster-label">Recipe family · data tier — references no shell crate</p>
+      <div class="band">
+        <p class="band-label">Universal base</p>
         <div class="row">
-          <a class="box" href="#graph-engine">
+          <a class="box" href={a("rsb-core")}>
+            <span class="name">rsb-core</span>
+          </a>
+        </div>
+      </div>
+
+      <p class="arrow" aria-hidden="true">&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">The contract</p>
+        <div class="row">
+          <a class="box" href={a("rsb-shell")}>
+            <span class="name">rsb-shell — the pump</span>
+          </a>
+        </div>
+      </div>
+
+      <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">The recipe family · data tier</p>
+        <div class="row">
+          <a class="box" href={a("graph-engine")}>
             <span class="name">graph engine</span>
-            <span class="role">name TBD · generations · restore-diff-mark · all operations</span>
           </a>
-          <a class="box" href="#rsb-pixel">
+          <a class="box" href={a("rsb-pixel")}>
             <span class="name">rsb-pixel</span>
-            <span class="role">value types · the payload seam</span>
           </a>
-          <a class="box" href="#rsb-photo-nodes">
+          <a class="box" href={a("rsb-photo-nodes")}>
             <span class="name">rsb-photo-nodes</span>
-            <span class="role">develop/ · composite/ · transition/ — one crate, three peer modules</span>
           </a>
-          <a class="box" href="#rsb-photo-recipe">
+          <a class="box" href={a("rsb-photo-recipe")}>
             <span class="name">rsb-photo-recipe</span>
-            <span class="role">the authored model</span>
           </a>
-          <a class="box" href="#rsb-photo-session">
+          <a class="box" href={a("rsb-photo-session")}>
             <span class="name">rsb-photo-session</span>
-            <span class="role">ephemera + undo instance</span>
           </a>
-          <a class="box" href="#photo-ops">
+          <a class="box" href={a("photo-ops")}>
             <span class="name">photo-ops</span>
-            <span class="role">verbs · headless</span>
           </a>
         </div>
       </div>
-      <div class="cluster domains">
-        <p class="cluster-label">Domains</p>
+
+      <p class="arrow" aria-hidden="true">&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">View tier</p>
         <div class="row">
-          <a class="box" href="#rsb-raw"><span class="name">rsb-raw</span></a>
-          <a class="box" href="#rsb-post"><span class="name">rsb-post</span></a>
-          <a class="box" href="#rsb-color"><span class="name">rsb-color</span></a>
+          <a class="box" href={a("view-tier")}>
+            <span class="name">view-support &#8594; editor crates</span>
+          </a>
         </div>
       </div>
-    </div>
-  </div>
 
-  <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;</p>
+      <p class="arrow" aria-hidden="true">&#9650;</p>
 
-  <div class="band">
-    <p class="band-label">Context members (runtime census — not all are crates)</p>
-    <div class="row">
-      <a class="box" href="#ctx-recipe">
-        <span class="name">recipe</span>
-        <span class="role">authored · generations</span>
-      </a>
-      <a class="box" href="#ctx-evaluation">
-        <span class="name">evaluation</span>
-        <span class="role">sourced + derived tiers</span>
-      </a>
-      <a class="box" href="#ctx-session">
-        <span class="name">session</span>
-        <span class="role">selection · ephemera · undo stack</span>
-      </a>
-      <a class="box" href="#ctx-report-stream">
-        <span class="name">report stream</span>
-        <span class="role">from rsb-core</span>
-      </a>
-      <a class="box dimmed" href="#ctx-extensions">
-        <span class="name">… app extensions</span>
-        <span class="role">census = floor, not ceiling</span>
-      </a>
-    </div>
-  </div>
+      <div class="band">
+        <p class="band-label">The app</p>
+        <div class="row">
+          <a class="box" href={a("lab")}>
+            <span class="name">Lab — the leaf</span>
+          </a>
+        </div>
+      </div>
 
-  <p class="arrow" aria-hidden="true">&#9650;</p>
+      <figcaption class="edge-note">
+        <span>most specific — the leaf</span>
+        <span>children &#9660;</span>
+      </figcaption>
+    </figure>
+  ) : (
+    <figure
+      class="dag"
+      aria-label="RSB Lab architecture diagram — the crate dependency DAG ordered by generality"
+    >
+      <figcaption class="edge-note">
+        <span>most general — the root</span>
+        <span>references point up &#9650;</span>
+      </figcaption>
 
-  <div class="band">
-    <p class="band-label">View tier · app</p>
-    <div class="row">
-      <a class="box grow-md" href="#view-tier">
-        <span class="name">view-support &#8594; editor crates (one per editor)</span>
-        <span class="role">implement View&lt;Ctx&gt; · keymaps as data via imported verb constants · never reference each other</span>
-      </a>
-      <a class="box grow-sm" href="#lab">
-        <span class="name">Lab — the leaf</span>
-        <span class="role">main · concrete Ctx · admission · keymaps · failure policy</span>
-      </a>
-    </div>
-  </div>
+      <div class="band">
+        <p class="band-label">Universal base — unrelated roots permitted; currently one</p>
+        <div class="row">
+          <a class="box" href={a("rsb-core")}>
+            <span class="name">rsb-core</span>
+            <span class="role">root: trait Fail · Chain · Rendered · mod report · annex pattern available (zero occupants)</span>
+          </a>
+        </div>
+      </div>
 
-  <figcaption class="edge-note">
-    <span>most specific — the leaf</span>
-    <span>children &#9660;</span>
-  </figcaption>
-</figure>
+      <p class="arrow" aria-hidden="true">&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">The contract</p>
+        <div class="row">
+          <a class="box" href={a("rsb-shell")}>
+            <span class="name">rsb-shell — the pump</span>
+            <span class="role">View&lt;Ctx&gt; · Operator&lt;Ctx&gt; + registry + typed args · pointer capture + step machinery · opaque topics · job door · phase hook · six-phase order</span>
+          </a>
+        </div>
+      </div>
+
+      <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;&ensp;&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">Realizations · the recipe family · domains</p>
+        <div class="row stack">
+          <a class="box" href={a("rsb-shell-sync")}>
+            <span class="name">rsb-shell-sync</span>
+            <span class="role">winit / wgpu · loop · areas · workers · dispatch + tripwire</span>
+          </a>
+          <div class="cluster">
+            <p class="cluster-label">Recipe family · data tier — references no shell crate</p>
+            <div class="row">
+              <a class="box" href={a("graph-engine")}>
+                <span class="name">graph engine</span>
+                <span class="role">name TBD · generations · restore-diff-mark · all operations</span>
+              </a>
+              <a class="box" href={a("rsb-pixel")}>
+                <span class="name">rsb-pixel</span>
+                <span class="role">value types · the payload seam</span>
+              </a>
+              <a class="box" href={a("rsb-photo-nodes")}>
+                <span class="name">rsb-photo-nodes</span>
+                <span class="role">develop/ · composite/ · transition/ — one crate, three peer modules</span>
+              </a>
+              <a class="box" href={a("rsb-photo-recipe")}>
+                <span class="name">rsb-photo-recipe</span>
+                <span class="role">the authored model</span>
+              </a>
+              <a class="box" href={a("rsb-photo-session")}>
+                <span class="name">rsb-photo-session</span>
+                <span class="role">ephemera + undo instance</span>
+              </a>
+              <a class="box" href={a("photo-ops")}>
+                <span class="name">photo-ops</span>
+                <span class="role">verbs · headless</span>
+              </a>
+            </div>
+          </div>
+          <div class="cluster domains">
+            <p class="cluster-label">Domains</p>
+            <div class="row">
+              <a class="box" href={a("rsb-raw")}><span class="name">rsb-raw</span></a>
+              <a class="box" href={a("rsb-post")}><span class="name">rsb-post</span></a>
+              <a class="box" href={a("rsb-color")}><span class="name">rsb-color</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="arrow" aria-hidden="true">&#9650;&ensp;&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">Context members (runtime census — not all are crates)</p>
+        <div class="row">
+          <a class="box" href={a("ctx-recipe")}>
+            <span class="name">recipe</span>
+            <span class="role">authored · generations</span>
+          </a>
+          <a class="box" href={a("ctx-evaluation")}>
+            <span class="name">evaluation</span>
+            <span class="role">sourced + derived tiers</span>
+          </a>
+          <a class="box" href={a("ctx-session")}>
+            <span class="name">session</span>
+            <span class="role">selection · ephemera · undo stack</span>
+          </a>
+          <a class="box" href={a("ctx-report-stream")}>
+            <span class="name">report stream</span>
+            <span class="role">from rsb-core</span>
+          </a>
+          <a class="box dimmed" href={a("ctx-extensions")}>
+            <span class="name">… app extensions</span>
+            <span class="role">census = floor, not ceiling</span>
+          </a>
+        </div>
+      </div>
+
+      <p class="arrow" aria-hidden="true">&#9650;</p>
+
+      <div class="band">
+        <p class="band-label">View tier · app</p>
+        <div class="row">
+          <a class="box grow-md" href={a("view-tier")}>
+            <span class="name">view-support &#8594; editor crates (one per editor)</span>
+            <span class="role">implement View&lt;Ctx&gt; · keymaps as data via imported verb constants · never reference each other</span>
+          </a>
+          <a class="box grow-sm" href={a("lab")}>
+            <span class="name">Lab — the leaf</span>
+            <span class="role">main · concrete Ctx · admission · keymaps · failure policy</span>
+          </a>
+        </div>
+      </div>
+
+      <figcaption class="edge-note">
+        <span>most specific — the leaf</span>
+        <span>children &#9660;</span>
+      </figcaption>
+    </figure>
+  )
+}
 
 <style>
   .dag {
@@ -241,5 +344,19 @@
     text-align: center;
     font-size: 0.625rem;
     color: var(--color-neutral-400);
+  }
+
+  /* Compact (landing) spine: tighter bands, name-only boxes that hug their
+     content instead of filling the row. */
+  .compact .band {
+    padding: 0.5rem 0.625rem 0.625rem;
+  }
+
+  .compact .box {
+    flex: 0 1 auto;
+  }
+
+  .compact .row {
+    align-items: flex-start;
   }
 </style>
