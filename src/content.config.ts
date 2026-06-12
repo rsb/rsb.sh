@@ -19,10 +19,15 @@ const reversibility = z.enum(["bedrock", "hard-to-reverse", "reversible"]);
 
 // Frontmatter shared by every ADR regardless of status. `supersedes` is allowed
 // on drafts too, so a draft replacement can declare its intent before acceptance.
+// `scope` is the third axis (launch-artifacts §2): absence = universal — the
+// decision governs all RSB code; present = the one application it binds. Absence
+// as the default is load-bearing: accepted ADRs freeze body and metadata, so
+// universality must be expressible without editing existing files.
 const adrShared = {
   title: z.string(),
   reversibility,
   supersedes: z.array(reference("adrs")).optional(),
+  scope: z.enum(["lab"]).optional(),
 };
 
 // Accepted/deprecated ADRs carry the decision-bearing fields drafts lack: a

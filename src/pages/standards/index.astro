@@ -15,18 +15,20 @@ const empty = standards.length === 0;
 <DecisionLog
   surface="Standards"
   title="Standards"
-  description="Normative standards for RSB Lab — driven by accepted decisions, corpus-versioned, and cited by released crates."
+  description="Normative standards for RSB — driven by accepted decisions, corpus-versioned, and cited by released crates."
 >
   <StandardsSidebar slot="sidebar" />
 
   <h1 class="text-2xl font-semibold tracking-tight">Standards</h1>
   <p class="mt-4 max-w-prose text-neutral-600">
-    Standards are the normative rules of RSB Lab. Each codifies exactly
+    Standards are the normative rules of RSB. Each codifies exactly
     one accepted decision — the <a
       href="https://adrs.rsb.sh"
       class="underline hover:no-underline">ADR</a
     > records why, the standard states the requirement, released code complies — and
     carries a stable, citable id (e.g. <code class="font-mono text-sm">STD-NAMING</code>).
+    A standard inherits its reach from its driving decision: universal unless that
+    decision is scoped to a single application.
     Standards are corpus-versioned: a crate pinned to an earlier corpus resolves the
     standard as it stood then, so released code never breaks under a later rule change.
   </p>

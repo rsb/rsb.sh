@@ -72,6 +72,7 @@ const isEmpty = numbered.length === 0 && drafts.length === 0;
                     <span class="text-amber-700">deprecated</span>
                   )}
                   <span class="text-neutral-400">{reversibilityLabel[a.data.reversibility]}</span>
+                  {a.data.scope && <span class="text-sky-700">{a.data.scope}</span>}
                   {sup !== undefined && (
                     <span class="text-neutral-500">
                       superseded by ADR-{String(sup).padStart(4, "0")}
@@ -104,8 +105,9 @@ const isEmpty = numbered.length === 0 && drafts.length === 0;
                     ]}
                   >
                     {a.data.title}
-                    <span class="mt-0.5 block text-[0.65rem] uppercase tracking-wide text-neutral-400">
-                      {reversibilityLabel[a.data.reversibility]}
+                    <span class="mt-0.5 flex flex-wrap gap-1.5 text-[0.65rem] uppercase tracking-wide text-neutral-400">
+                      <span>{reversibilityLabel[a.data.reversibility]}</span>
+                      {a.data.scope && <span class="text-sky-700">{a.data.scope}</span>}
                     </span>
                   </a>
                 </li>
