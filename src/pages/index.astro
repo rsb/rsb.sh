@@ -1,46 +1,73 @@
 ---
 import Base from "../layouts/Base.astro";
+import LabArchitectureDiagram from "../components/LabArchitectureDiagram.astro";
 
+// The landing — Lab-first (headline blessed: "I'm building Lab."). First
+// person throughout; rsb.sh stays the engineering record, not the product
+// home (that is rsb-lab.com, placeholder today, linked once without
+// ceremony). The compact architecture diagram is the credibility: the work,
+// shown rather than claimed. The repo link lands in a follow-up PR when
+// rsb/lab goes public.
+//
 // On-demand so middleware host routing (src/middleware.ts) can branch on the
 // request host: adrs./standards. enter through "/" and get rewritten.
 export const prerender = false;
 ---
 
 <Base
-  description="Open-source, local-first professional creative tools for the desktop — starting with photography — and the engineering knowledge behind them, every decision reasoned through in the open and written down."
+  description="I'm building Lab — a free, professional photo editor for the desktop. Open source under the GPL, local-first, and every decision of weight written down in the open."
 >
   <h1 class="text-3xl font-semibold tracking-tight text-balance">
-    Open-source professional creative tools.
+    I'm building Lab.
   </h1>
   <p
     class="mt-2 text-balance text-xl font-medium tracking-tight text-neutral-500"
   >
-    And the engineering knowledge behind them.
+    A free, professional photo editor — open source, local-first, every
+    decision written down in the open.
   </p>
 
   <div class="intro">
     <p>
-      I'm building a system for making professional creative software on the
-      desktop — open source, local-first, no telemetry, no lock-in. The first
-      tools built on it are for photography, the work I know best.
+      Lab is a professional-grade photo editor for the desktop, and I'm building
+      it because the tools serious creative work depends on have been fenced off
+      — rented, not owned. Lab is free in both senses: it costs nothing, and it
+      is released under the GPL, so no one can fence it off again. Your
+      photographs live on your machine, the editor works offline indefinitely,
+      and nothing you make ever passes through my hands.
     </p>
 
     <p>
-      But the tools are the proof, not the point. The system underneath — the
-      reusable crates, and every decision of weight reasoned through in the open
-      and written down — is the real work. Building it this way produces the
-      thing the web is quietly losing: engineering knowledge you can trust,
-      because a person stood behind every word of it.
+      The other half of the work is the record. Every decision of weight in Lab
+      — the architecture, the error model, the names — is reasoned through in
+      the open and written down: the decisions as
+      <a href="https://adrs.rsb.sh">ADRs</a>, the rules they imply as
+      <a href="https://standards.rsb.sh">standards</a>, and the shape of the
+      whole thing right here. It's the kind of engineering knowledge the web is
+      quietly losing — trustworthy because a person stood behind every word of
+      it.
+    </p>
+
+    <p class="diagram-lead">This is Lab as it stands — every box is a decision you can read:</p>
+
+    <LabArchitectureDiagram compact hrefBase="/architecture" />
+
+    <p class="pointer">
+      <a href="/architecture">The full architecture reference &#8594;</a>
     </p>
 
     <p>
-      All of it answers to the same small set of pillars, and all of it is early.
+      All of it answers to the same
+      <a href="/architecture/pillars">four pillars</a>, and all of it is early.
       There's more written down than there is built, and right now I'm the one
-      building it.
+      building it — this site is the work itself, made transparent as it
+      happens. Lab's product home,
+      <a href="https://rsb-lab.com">rsb-lab.com</a>, wakes up when there is
+      something to show.
     </p>
 
     <p class="pointer">
-      <a href="/why">The longer version of why is here →</a>
+      <a href="/why">The longer version of why is here &#8594;</a>
     </p>
   </div>
 </Base>
@@ -63,11 +90,19 @@ export const prerender = false;
     color: var(--color-neutral-900);
   }
 
-  /* A quiet inline pointer to /why, not a call to action. The .intro p
-     selector (0,3,1) outranks a bare .pointer (0,2,0), so qualify it to win the
+  /* Lead line into the diagram — quieter than body copy, tight against it. */
+  .intro p.diagram-lead {
+    margin-top: 2rem;
+    margin-bottom: -0.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-neutral-500);
+  }
+
+  /* A quiet inline pointer, not a call to action. The .intro p selector
+     (0,3,1) outranks a bare .pointer (0,2,0), so qualify it to win the
      margin-top override. */
   .intro p.pointer {
-    margin-top: 2rem;
+    margin-top: 1rem;
     font-size: 0.9375rem;
   }
 
