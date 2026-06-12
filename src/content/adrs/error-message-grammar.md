@@ -8,7 +8,7 @@ reversibility: reversible
 
 The errors-are-values draft fixed the stance: failures are returned values, and
 each carries enough to be reasoned about rather than suffered. The error-contract
-draft fixed the shape: every RSB Ecosystem error is its crate's own type
+draft fixed the shape: every RSB error is its crate's own type
 implementing a shared contract trait, the causal chain is the populated
 `std::error::Error::source()`, and the Go-style `outer: middle: leaf` reading is
 a walk over that chain. Both drafts deferred one thing to here, and named it
@@ -29,25 +29,25 @@ Two things make this draft different from the two it follows, and the difference
 is deliberate. First, it is the operational one. The principle and the contract
 named no rule a developer types day to day; this one does — it is the grammar a
 developer writes and the thing a reviewer flags. Second, its scope is narrower
-than its reach suggests: the grammar is **internal ecosystem law, not a published
-obligation.** It binds the RSB Ecosystem's own crates so that every RSB error
+than its reach suggests: the grammar is **internal law, not a published
+obligation.** It binds RSB's own crates so that every RSB error
 reads and greps the same way. It is invisible at the contract boundary — a
 downstream consumer reads RSB errors through `Display` and `source()` like any
 error and never has to know the grammar exists. They simply benefit from the
-uniformity. Because nothing downstream programs against the grammar, the ecosystem
-can refine its own internal grammar without breaking a single consumer, which is
+uniformity. Because nothing downstream programs against the grammar, RSB
+can refine it without breaking a single consumer, which is
 why this draft is `reversible` where the contract draft was `hard to reverse`.
 
 The motivation for a grammar at all — rather than leaving each crate to phrase
-failures as it likes — is the ecosystem itself. One application can phrase its
-errors however reads best; it has one log, one author's habits, one mental model.
-An ecosystem of many crates feeding many consumers' logs has none of that
-coherence unless it imposes it. A uniform grammar makes every RSB failure
-predictable to read and, more importantly, searchable: a stable call-site token
-is greppable across the whole ecosystem and every consumer's logs, so a developer
-seeing a failure in production can search for the exact token and land on the
-construction site. That searchability is an ecosystem-scale good a single
-application would barely value, and it is what the grammar buys.
+failures as it likes — is the shape of the codebase. A one-author monolith can
+phrase its errors however reads best; it has one log, one author's habits, one
+mental model. Many crates written across years — and, in time, by many hands —
+feeding the same logs have none of that coherence unless it is imposed. A
+uniform grammar makes every failure predictable to read and, more importantly,
+searchable: a stable call-site token is greppable across the whole codebase and
+every log it reaches, so a developer seeing a failure in production can search
+for the exact token and land on the construction site. That searchability is
+what the grammar buys, and it grows with the number of crates.
 
 The grammar fixes a frame and leaves the fill to judgment. The frame — the
 skeleton of every message — is law, and is uniform enough to be predictable and
@@ -59,7 +59,7 @@ boilerplate.
 
 ## Decision
 
-Every RSB Ecosystem error message follows one grammar:
+Every error message follows one grammar:
 
 ```
 [decoration] function | receiver.method failed[: msg]
@@ -157,17 +157,17 @@ judgment stays with the reviewer, where a case-by-case call belongs.
 
 ## Consequences
 
-- RSB failures are predictable and searchable across the whole ecosystem. A stable
+- Failures are predictable and searchable across the whole codebase. A stable
   call-site token and a fixed verb mean a developer who sees a failure in any
-  consumer's log can grep for the exact string and reach the code. This is the
-  ecosystem-scale payoff the grammar exists for, and it grows with the number of
+  log can grep for the exact string and reach the code. This is the
+  payoff the grammar exists for, and it grows with the number of
   crates rather than degrading.
 
 - The grammar is internal and carries no cost to consumers. It binds RSB crates,
   not the wider world; a downstream consumer reads RSB errors as ordinary
   `std::error::Error` values and benefits from the uniformity without obeying any
-  rule. Because nothing downstream depends on the grammar, the ecosystem can adjust
-  it without a breaking change — the reason this decision is `reversible`.
+  rule. Because nothing downstream depends on the grammar, it can be adjusted
+  without a breaking change — the reason this decision is `reversible`.
 
 - The frame is enforceable; the fill is judged. The skeleton — the verb, the
   separator, the presence of a call-site token, the absence of a crate prefix — is
@@ -180,7 +180,7 @@ judgment stays with the reviewer, where a case-by-case call belongs.
   particular is guard-_assisted_ but review-_judged_: a guard can flag a raw value in
   a message for attention; only a human can decide whether that value is safe.
 
-- The discipline leans on review more than a single application's would. Without a
+- The discipline leans on review. Without a
   foundational concrete error type owning the constructor, the grammar cannot be
   enforced purely by construction the way a type could enforce it; a guard surfaces
   candidates and review judges them. This is the same uneven-enforcement reality the
@@ -191,7 +191,7 @@ judgment stays with the reviewer, where a case-by-case call belongs.
 - It completes the error chain. The principle said failures are values; the
   contract said what shape holds a value and how its chain is exposed; this says what
   the value's message contains and how a developer writes it. Together the three are
-  the RSB Ecosystem's error model, and this draft is the one a developer consults
+  RSB's error model, and this draft is the one a developer consults
   while typing.
 
 ## Alternatives considered
@@ -199,11 +199,11 @@ judgment stays with the reviewer, where a case-by-case call belongs.
 - **No grammar — each crate phrases failures as it likes.** Leave message wording
   entirely to the author, governed only by the soft discipline of "be clear."
   Attractive because it imposes nothing and trusts authors. Rejected because it
-  forfeits the one thing an ecosystem can offer that a single application cannot:
-  uniformity across many crates and many consumers' logs. Without a fixed call-site
-  token and verb, RSB failures are legible one crate at a time but not _searchable_
-  as a body — a developer cannot grep a stable pattern across the ecosystem, and the
-  coherence that makes a multi-crate ecosystem feel like one thing is lost. The
+  forfeits what many crates can only have by imposing it:
+  uniformity. Without a fixed call-site
+  token and verb, failures are legible one crate at a time but not _searchable_
+  as a body — a developer cannot grep a stable pattern across the codebase, and the
+  coherence that makes a many-crate codebase feel like one thing is lost. The
   clarity-only discipline is kept; the grammar is added on top of it for the
   searchability the discipline alone cannot provide.
 
