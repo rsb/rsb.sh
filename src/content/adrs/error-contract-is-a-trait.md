@@ -6,45 +6,44 @@ reversibility: hard-to-reverse
 
 ## Context
 
-The errors-are-values draft fixed the stance: failures in RSB Ecosystem code are
+The errors-are-values draft fixed the stance: failures are
 returned values, the panic boundary runs between anticipated and impossible, bad
 input is never silently substituted, and failure surfaces are designed before
 success paths. That decision deliberately named no error *type*. It said what a
 failure must be, not what shape the thing holding the failure has. This draft
 records that shape.
 
-The question it answers is narrow and consequential: when an RSB Ecosystem crate
+The question it answers is narrow and consequential: when a crate
 returns a failure, what does the foundation provide, and what does the crate
 provide? There are two extremes, and the whole decision is about rejecting both.
 
 At one extreme, the foundation provides nothing and every crate invents its
 error type from scratch. This is faithful to errors-are-values — typed errors are
-values — but it gives the ecosystem no shared shape. Two crates' errors have
+values — but it gives the crates no shared shape. Two crates' errors have
 nothing in common, a consumer composing them learns each one separately, and the
-"body of engineering knowledge" the RSB Ecosystem exists to teach has no through
+body of engineering knowledge RSB exists to teach has no through
 line for how failure is modelled. The pillars are realized crate by crate with no
 shared spine.
 
 At the other extreme, the foundation provides one concrete error *type* that
-every crate uses. This is the path a single application takes, and it is the
-wrong shape for the RSB Ecosystem specifically because of what the RSB Ecosystem
-ships. The crates are the product. A foundational concrete type is a *published*
-artifact every crate's public API inherits and every downstream repository
-programs against across a version boundary. Any opinion baked into that type — a
-fixed set of fields, and above all any classification of failures by recovery
-action — is inherited by every consumer whether it fits them or not, and cannot
-be changed without a breaking release that cascades through the whole ecosystem.
-The errors-are-values draft already pushed recovery classification out of the
-foundation for exactly this reason; a foundational concrete type is the back door
-that same classification would climb back in through.
+every crate uses. This is the path a single application usually takes — and Lab
+is a single application, which is why the temptation deserves naming. But the
+foundation sits at the root of the dependency graph: every crate references it,
+so its shape is the most expensive thing in the codebase to change, and any
+opinion baked into that type — a fixed set of fields, and above all any
+classification of failures by recovery action — is inherited by every crate
+whether it fits or not. The errors-are-values draft already pushed recovery
+classification out of the foundation for exactly this reason; a foundational
+concrete type is the back door that same classification would climb back in
+through.
 
-What the RSB Ecosystem needs sits between these: a shared *contract* that every
+What RSB needs sits between these: a shared *contract* that every
 error honours, with the concrete *type* owned by the crate that defines it. The
 foundation publishes obligations; each crate publishes a type that meets them.
 This is the same shape Rust's own `serde` takes — `serde::de::Error` is a trait,
 and each data-format crate brings its own concrete error implementing it — and it
-is the shape the RSB Ecosystem's serde-granular crate organization already
-points at.
+is the shape RSB's crate organization — many small crates with enforced seams —
+already points at.
 
 This draft also settles what the contract requires, because a contract that names
 no obligations is empty. Two design forces shape those requirements. The first is
@@ -58,28 +57,28 @@ without a debugger. The contract must serve both, and the resolution below is
 that they are the same causal chain seen two ways, not two competing mechanisms.
 
 This draft is `hard to reverse`. The supertrait requirement and the source-chain
-obligation are published-API commitments inherited by every ecosystem crate and
-every downstream repository. They are not bedrock — a different contract shape is
-conceivable and the ecosystem could in principle migrate — but undoing them once
-crates depend on them is a breaking change with ecosystem-wide reach, which is
+obligation are inherited by every crate that can fail — and by anything external
+the day a crate is published. They are not bedrock — a different contract shape
+is conceivable and the code could in principle migrate — but undoing them means
+reworking every error type and every consumer of a chain at once, which is
 why the requirements are kept deliberately small.
 
 ## Decision
 
-The RSB Ecosystem's foundational error facility is a **contract trait**, not a
+The foundational error facility is a **contract trait**, not a
 concrete type. The foundation publishes the trait; each crate that can fail
 defines its own concrete error type implementing it. There is no foundational
 error struct and no foundational error enum.
 
 The contract has three parts.
 
-**It requires `std::error::Error` as a supertrait.** Every RSB Ecosystem error is
+**It requires `std::error::Error` as a supertrait.** Every RSB error is
 a `std::error::Error`, and therefore `Display + Debug`. This is the
 interoperability commitment: an RSB error is, with no conversion, an ordinary
 member of the Rust error ecosystem. A downstream consumer can `?` it into their
 own error handling, box it as `Box<dyn Error>`, log it through any error-aware
 machinery, and compose it alongside errors from crates that have never heard of
-the RSB Ecosystem. The cost of interoperability is paid once, here, in the
+RSB. The cost of interoperability is paid once, here, in the
 contract, rather than paid repeatedly by every consumer at every boundary.
 
 **The causal chain is the standard one, populated.** When an RSB error wraps an
@@ -125,7 +124,7 @@ capture is deliberately absent and is addressed in the alternatives below.
 - Each crate's error type is its own published surface, meeting a shared
 contract. A consumer learns one set of obligations once — every RSB error is a
 `std::error::Error` with a real `source()` chain and a consistent rendering — and
-then reads each crate's concrete type for what is specific to it. The ecosystem
+then reads each crate's concrete type for what is specific to it. The codebase
 has a shared spine without a shared straitjacket.
 
 - Interoperability is structural, not bolted on. Because every RSB error is a
@@ -153,9 +152,10 @@ are contract-guaranteed, which are mechanically checkable, and which rest on
 review.
 
 - The requirements are inherited and `hard to reverse`. The supertrait and the
-`source()` obligation are published commitments every ecosystem crate's API
-carries and every downstream repository depends on. Removing either is a breaking
-change with ecosystem-wide reach. They are kept small for this reason: the
+`source()` obligation are commitments every failing crate's API
+carries — and that anything external inherits the day a crate is published.
+Removing either means reworking every error type and every chain consumer at
+once. They are kept small for this reason: the
 contract requires the two things that buy interoperability and a legible chain,
 and nothing more, so the inherited surface is as light as the goals allow.
 
@@ -170,16 +170,16 @@ enforced." That decision stands on this one and cites it.
 - **A foundational concrete error type, with no recovery classification.** The
 shape a single application reaches for: one shared `Error` struct carrying a
 cause and a message, used by every crate. Attractive because it is the most
-direct way to give the ecosystem a shared shape, and because it can *enforce*
+direct way to give the codebase a shared shape, and because it can *enforce*
 context discipline by owning the constructor — the strongest enforcement
 available, which a trait cannot match. Rejected because a foundational concrete
-type is a published artifact inherited by every crate's API and every downstream
-repository, and its field set is then frozen ecosystem-wide. Even stripped of
+type is the most general artifact in the codebase — every crate inherits its
+shape, and its field set is then frozen for all of them. Even stripped of
 recovery classification, it is the back door through which application-shaped
 opinion re-enters the foundation, and it makes every crate's error the *same*
-type rather than each crate's *own* type — which is the wrong granularity for an
-ecosystem whose crates are the product and are organized for independent
-consumption. The enforcement it would buy is real, and its loss is the genuine
+type rather than each crate's *own* type — the wrong granularity when each
+crate designs its own failure surface. The enforcement it would buy is real,
+and its loss is the genuine
 cost of choosing the trait; the standard and review absorb that cost instead.
 
 - **A generic foundational type, `Error<K>`.** One foundational type parameterized
@@ -197,15 +197,16 @@ buys flexibility along an axis the foundation should not have an opinion about.
 - **An RSB-native contract that does not require `std::error::Error`.** A wholly
 owned contract trait with its own printability and its own source mechanism,
 beholden to no external trait. Attractive for purity — the contract would be
-entirely the RSB Ecosystem's own, with no external dependency shaping it.
-Rejected because the purity benefits no one downstream. An ecosystem whose crates
-exist to be consumed by strangers would, under this option, impose an explicit
-conversion at every boundary between an RSB error and the wider Rust world —
-forever, on every consumer — in exchange for a cleanliness only the foundation
-appreciates. "Open and free, built to be used" points directly away from this:
-the standard interop trait is the thing a published-crate-first ecosystem wants
-most, and refusing it taxes precisely the consumers the ecosystem is built to
-serve. The duplication this option avoids — std's `source()` shadowing an
+entirely RSB's own, with no external dependency shaping it. Rejected because
+the purity benefits no one. RSB code lives in the Rust world —
+its errors wrap external crates' errors and are handled by code that speaks
+`std::error::Error` — and under this option every boundary between an RSB error
+and that world pays an explicit conversion, forever, in exchange for a
+cleanliness only the foundation appreciates. "Open and free, built to be used"
+points directly away from this:
+the standard interop trait is the cheapest door between RSB failures and
+everything else, and refusing it taxes precisely the consumers the contract
+exists to serve. The duplication this option avoids — std's `source()` shadowing an
 RSB-native chain — is avoided more cleanly by the chosen decision, which makes
 std's `source()` *the* chain rather than a competitor to it.
 
@@ -232,7 +233,7 @@ because the burden falls on implementing crates the foundation does not control,
 and a contract cannot guarantee the attribute is applied correctly across them. A
 mechanism whose precision degrades invisibly is a reliability defect even when it
 "works," so it is dropped entirely rather than made optional — an optional
-location slot that is empty across most of the ecosystem is its own small
+location slot that is empty across most crates is its own small
 dishonesty. The legible `source()` chain with implementor-written call-site
 messages carries the diagnostic weight instead, honestly and without a fragile
 dependency on an attribute.
