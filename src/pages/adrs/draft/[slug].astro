@@ -51,6 +51,11 @@ const reversibilityLabel: Record<string, string> = {
       <span class="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-600">
         {reversibilityLabel[entry.data.reversibility]}
       </span>
+      {
+        entry.data.scope && (
+          <span class="rounded bg-sky-100 px-1.5 py-0.5 text-sky-800">{entry.data.scope}</span>
+        )
+      }
     </div>
 
     <p class="mt-4 rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-600">

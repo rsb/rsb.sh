@@ -21,6 +21,11 @@ const { Content } = await render(entry);
 const site = Astro.site ?? new URL("https://rsb.sh");
 const sourceHref = `https://adrs.${site.host}/adr/${entry.data.sourceAdr.id}/`;
 
+// A standard stores no scope; its reach is DERIVED from its driving ADR (the
+// same move as superseded-by), so the relationship cannot drift.
+const sourceAdr = await getEntry("adrs", entry.data.sourceAdr.id);
+const scope = sourceAdr?.data.scope;
+
 // The reason this surface exists: the exact string a released crate uses to cite
 // this standard, built from the REAL corpusVersion field (never hardcoded).
 const citeString = `Complies with ${entry.id} (corpus v${entry.data.corpusVersion})`;
@@ -32,7 +37,10 @@ const citeString = `Complies with ${entry.id} (corpus v${entry.data.corpusVersio
   <article class="max-w-prose">
     <p class="font-mono text-sm text-neutral-500">{entry.id}</p>
     <h1 class="mt-1 text-2xl font-semibold tracking-tight">{entry.data.title}</h1>
-    <p class="mt-3 text-xs uppercase tracking-wide text-neutral-400">corpus v{entry.data.corpusVersion}</p>
+    <p class="mt-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-neutral-400">
+      <span>corpus v{entry.data.corpusVersion}</span>
+      {scope && <span class="rounded bg-sky-100 px-1.5 py-0.5 text-sky-800">{scope}</span>}
+    </p>
 
     <div class="mt-6 text-neutral-800 [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-semibold [&_p]:mt-3 [&_p]:leading-relaxed [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-6 [&_a]:underline [&_a:hover]:no-underline">
       <Content />
