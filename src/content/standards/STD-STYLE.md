@@ -4,7 +4,7 @@ sourceAdr: 0001-base-coding-standard
 corpusVersion: 1
 ---
 
-Code in the RSB Ecosystem must conform to the official
+Code in RSB must conform to the official
 [Rust Style Guide](https://doc.rust-lang.org/style-guide/), applied through
 [`rustfmt`](https://rust-lang.github.io/rustfmt/) at its default configuration. A
 crate complies when `cargo fmt --check` reports no changes; any formatting
@@ -17,7 +17,7 @@ is governed by its own standard as the decision behind it is made.
 
 ## Rationale
 
-This standard exists because ADR-0001 established that the RSB Ecosystem stands on
+This standard exists because ADR-0001 established that RSB stands on
 community consensus for the mechanical basics rather than authoring its own. The
 Rust Style Guide is the community's settled answer and `rustfmt` is its mechanical
 enforcement, so compliance is automatic and machine-verifiable, with no human
