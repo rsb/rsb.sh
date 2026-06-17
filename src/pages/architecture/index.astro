@@ -52,9 +52,8 @@ export const prerender = false;
     <h2 id="diagram">RSB Lab Architecture Diagram</h2>
 
     <p class="meta">
-      Last updated 2026-06-11 · pre-ADR working architecture — the decisions
-      below are blessed but not yet promoted to the decision record · one name
-      still pending (the graph engine's).
+      Last updated 2026-06-17 · pre-ADR working architecture — the decisions
+      below are blessed but not yet promoted to the decision record.
     </p>
 
     <p>
@@ -80,7 +79,7 @@ export const prerender = false;
 
     <h2 id="universal-base">The universal base</h2>
 
-    <h3 id="rsb-core"><code>rsb-core</code></h3>
+    <h3 id="lab-core"><code>lab-core</code></h3>
     <p>
       The root. It depends on nothing; everything else may depend on it — that
       asymmetry is the definition of the layer. The crate root holds the error
@@ -104,7 +103,7 @@ export const prerender = false;
 
     <h2 id="contract">The contract</h2>
 
-    <h3 id="rsb-shell"><code>rsb-shell</code> — the pump</h3>
+    <h3 id="lab-shell"><code>lab-shell</code> — the pump</h3>
     <p>
       The contract crate; the pump's home. Its clause census is complete:
       <code>View&lt;Ctx&gt;</code> (event / listener / draw, generic over an
@@ -126,7 +125,7 @@ export const prerender = false;
 
     <h2 id="realizations">Realizations, the recipe family, and the domains</h2>
 
-    <h3 id="rsb-shell-sync"><code>rsb-shell-sync</code></h3>
+    <h3 id="lab-shell-sync"><code>lab-shell-sync</code></h3>
     <p>
       The desktop realization: winit/wgpu boundary modules, the loop, windows and
       areas, the rendering protocol, the job supervisor (eight callbacks in
@@ -140,7 +139,7 @@ export const prerender = false;
       flush replaced by the subject-neutral phase hook.
     </aside>
 
-    <h3 id="graph-engine">The graph engine <span class="pending">(name pending — the one placeholder left)</span></h3>
+    <h3 id="lab-graph"><code>lab-graph</code></h3>
     <p>
       Generic graph machinery: nodes, sockets, edges, evaluation, a
       type-parametric connection API — it knows nothing of photography. The
@@ -160,7 +159,7 @@ export const prerender = false;
       scattered call sites.
     </aside>
 
-    <h3 id="rsb-pixel"><code>rsb-pixel</code></h3>
+    <h3 id="lab-pixel"><code>lab-pixel</code></h3>
     <p>
       Pixel-buffer value types: <code>LinearBuffer</code> and
       <code>RgbBuffer</code> — distinct per stage, so the develop/composite
@@ -171,8 +170,8 @@ export const prerender = false;
     <p>
       The name is the naming law's fourth application. RSB already holds other
       "image" concepts — the image file, the evaluated display image, the image
-      the user means — so <code>rsb-image</code> wore a name more general than
-      its contents. <code>rsb-pixel</code> passes from both directions: the
+      the user means — so <code>lab-image</code> wore a name more general than
+      its contents. <code>lab-pixel</code> passes from both directions: the
       contents are exactly the pixel vocabulary, and the bare general name is
       held by the genuinely general artifact.
     </p>
@@ -182,13 +181,13 @@ export const prerender = false;
       contents-accurate-name convention, corroborated.
     </aside>
 
-    <h3 id="rsb-photo-nodes"><code>rsb-photo-nodes</code></h3>
+    <h3 id="lab-photo-nodes"><code>lab-photo-nodes</code></h3>
     <p>
       The photo node vocabulary: one crate, with <code>develop/</code>,
       <code>composite/</code>, and <code>transition/</code> as peer modules. Each
       defines node kinds — typed evaluation code plus socket signatures
       registered as data through app admission. The develop/composite seam is
-      held twice: rsb-pixel's distinct payload types (compile-time,
+      held twice: lab-pixel's distinct payload types (compile-time,
       layout-independent) and module fences asserted by tooling —
       <code>develop/</code> never references <code>composite/</code> and vice
       versa. Cross-stage connection is refused at the single mutation door and
@@ -213,7 +212,7 @@ export const prerender = false;
       graph and sits as a peer.
     </aside>
 
-    <h3 id="rsb-photo-recipe"><code>rsb-photo-recipe</code></h3>
+    <h3 id="lab-photo-recipe"><code>lab-photo-recipe</code></h3>
     <p>
       The authored model — the graph, source references, parameters; what the
       user makes. It never holds a pixel buffer. It is what save writes, what
@@ -227,7 +226,7 @@ export const prerender = false;
       artifact, rebuilt via generations. Unknown kinds are preserved, not
       understood — a recipe survives node kinds its reader doesn't know, so
       <code>.rsb</code> longevity is structural rather than a format promise.
-      The cone is engine + rsb-core only, which keeps the crate near the
+      The cone is engine + lab-core only, which keeps the crate near the
       family's root and cheap for views, verbs, session, and evaluation to
       reference.
     </p>
@@ -236,7 +235,7 @@ export const prerender = false;
       <code>.rsb</code> was understood to encode a <strong>recipe</strong> — a
       complete, reproducible description of how to get from this RAW to this
       result — and "recipe" alone over-claims, so the crate is
-      <code>rsb-photo-recipe</code>, with bare <code>rsb-recipe</code> reserved,
+      <code>lab-photo-recipe</code>, with bare <code>lab-recipe</code> reserved,
       unbuilt, until a second recipe kind exists.
     </p>
     <aside class="blender">
@@ -252,17 +251,17 @@ export const prerender = false;
       (<code>NOD_geometry_nodes_lazy_function.hh:8-20</code>).
     </aside>
 
-    <h3 id="rsb-photo-session"><code>rsb-photo-session</code></h3>
+    <h3 id="lab-photo-session"><code>lab-photo-session</code></h3>
     <p>
       The session crate: the selection set, the active node, in-flight gesture
       ephemera, and the undo-stack instance — with the step-stack machinery
       private to this crate. The stack was never forced into a shared home:
       dispatch pushes steps through Ctx obligations and never needs the concrete
       type. If a second family ever arrives, the promotion target is a fenced
-      namespace in rsb-core, not a new crate.
+      namespace in lab-core, not a new crate.
     </p>
     <p>
-      The cone is engine + rsb-core. The recipe is deliberately <em>not</em> in
+      The cone is engine + lab-core. The recipe is deliberately <em>not</em> in
       the cone — pruning on recipe-changed takes an iterator of extant node IDs,
       not the recipe; the crate's whole vocabulary is engine IDs.
     </p>
@@ -274,7 +273,7 @@ export const prerender = false;
       sections' sources.
     </aside>
 
-    <h3 id="photo-ops"><code>photo-ops</code> — the verbs</h3>
+    <h3 id="lab-photo-ops"><code>lab-photo-ops</code> — the verbs</h3>
     <p>
       All operators of the photo family: named verbs executing over recipe +
       session, with typed argument structs. The operations/operators cut decides
@@ -283,10 +282,10 @@ export const prerender = false;
       and belong to the engine's mutation API; <strong>operators</strong> — even
       <code>node.delete</code> — take their operands from selection and wear
       names in the family's error grammar, so every one lives here. There is no
-      engine-side verb tier and no verb-trait crate: photo-ops exports plain
-      functions, argument structs, and name constants; rsb-shell defines the
+      engine-side verb tier and no verb-trait crate: lab-photo-ops exports plain
+      functions, argument structs, and name constants; lab-shell defines the
       registry plumbing; the app composes the two. The cone provably excludes
-      rsb-shell, view-support, and the GPU — "verbs are headless" is a CI edge
+      lab-shell, view-support, and the GPU — "verbs are headless" is a CI edge
       assertion, not a hope.
     </p>
     <aside class="blender">
@@ -299,7 +298,7 @@ export const prerender = false;
       our placement is the generality gradient's correction of the north star.
     </aside>
 
-    <h3 id="rsb-raw"><code>rsb-raw</code></h3>
+    <h3 id="lab-raw"><code>lab-raw</code></h3>
     <p>
       The RAW decode domain: a safe wrapper over the libraw FFI repository —
       which is its own repo for entirely intrinsic reasons: a C++ build profile,
@@ -307,10 +306,10 @@ export const prerender = false;
       node-family crates are distinct or the same crates is still open.
     </p>
 
-    <h3 id="rsb-post"><code>rsb-post</code></h3>
+    <h3 id="lab-post"><code>lab-post</code></h3>
     <p>The post-processing domain: the algorithms composite nodes invoke.</p>
 
-    <h3 id="rsb-color"><code>rsb-color</code></h3>
+    <h3 id="lab-color"><code>lab-color</code></h3>
     <p>
       Color management, invoked on the way to the shell's surface — one of the
       three pieces the dissolved "render layer" decomposed into (viewport
@@ -330,7 +329,7 @@ export const prerender = false;
 
     <h3 id="ctx-recipe">recipe</h3>
     <p>
-      The authored member: the rsb-photo-recipe instance. Mutated only through
+      The authored member: the lab-photo-recipe instance. Mutated only through
       the single door — verbs, or capture-scoped view mutation during a gesture
       — and snapshotted per undo step.
     </p>
@@ -359,15 +358,15 @@ export const prerender = false;
       views must agree on that does not change the output. Fires
       selection-changed via generations; subscribes to recipe-changed to prune
       dangling selection; never saved. Its crate home is
-      <a href="#rsb-photo-session"><code>rsb-photo-session</code></a>.
+      <a href="#lab-photo-session"><code>lab-photo-session</code></a>.
     </p>
 
     <h3 id="ctx-report-stream">report stream</h3>
     <p>
-      From rsb-core. Verbs return <code>Result&lt;_, E: Fail&gt;</code>; the
+      From lab-core. Verbs return <code>Result&lt;_, E: Fail&gt;</code>; the
       dispatcher reports failures in grammar form — the verb registry and the
       failure vocabulary are one taxonomy. A report-console view's subject is
-      this stream: a view crate referencing rsb-shell and rsb-core only, the
+      this stream: a view crate referencing lab-shell and lab-core only, the
       view rule generalizing cleanly.
     </p>
 
@@ -462,12 +461,6 @@ export const prerender = false;
   }
 
   .architecture .meta {
-    font-size: 0.8125rem;
-    color: var(--color-neutral-500);
-  }
-
-  .architecture .pending {
-    font-weight: 400;
     font-size: 0.8125rem;
     color: var(--color-neutral-500);
   }
