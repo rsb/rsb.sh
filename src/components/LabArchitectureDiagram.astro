@@ -1,7 +1,7 @@
 ---
 // The RSB Lab architecture diagram — the dependency DAG drawn as generality
 // bands, ported from the planning repo's architecture deck (slide 2) into the
-// site's visual language (ticket #40). Most general at the top (rsb-core, the
+// site's visual language (ticket #40). Most general at the top (lab-core, the
 // root), most specific at the bottom (Lab, the leaf); ▲ marks the reference
 // direction — child → parent, specific → general. It is a DAG, not a tree:
 // cross-branch references are legal and a crate may have multiple parents.
@@ -13,8 +13,8 @@
 // `compact` renders the five-band spine for the landing page: name-only boxes,
 // no role text, no Context band, no domains — half the height, unmistakably
 // the same diagram. `hrefBase` prefixes the box anchors so the compact variant
-// can link cross-page ("/architecture#rsb-core") while the full one stays
-// same-page ("#rsb-core").
+// can link cross-page ("/architecture#lab-core") while the full one stays
+// same-page ("#lab-core").
 interface Props {
   compact?: boolean;
   hrefBase?: string;
@@ -38,8 +38,8 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
       <div class="band">
         <p class="band-label">Universal base</p>
         <div class="row">
-          <a class="box" href={a("rsb-core")}>
-            <span class="name">rsb-core</span>
+          <a class="box" href={a("lab-core")}>
+            <span class="name">lab-core</span>
           </a>
         </div>
       </div>
@@ -49,8 +49,8 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
       <div class="band">
         <p class="band-label">The contract</p>
         <div class="row">
-          <a class="box" href={a("rsb-shell")}>
-            <span class="name">rsb-shell — the pump</span>
+          <a class="box" href={a("lab-shell")}>
+            <span class="name">lab-shell — the pump</span>
           </a>
         </div>
       </div>
@@ -60,23 +60,23 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
       <div class="band">
         <p class="band-label">The recipe family · data tier</p>
         <div class="row">
-          <a class="box" href={a("graph-engine")}>
-            <span class="name">graph engine</span>
+          <a class="box" href={a("lab-graph")}>
+            <span class="name">lab-graph</span>
           </a>
-          <a class="box" href={a("rsb-pixel")}>
-            <span class="name">rsb-pixel</span>
+          <a class="box" href={a("lab-pixel")}>
+            <span class="name">lab-pixel</span>
           </a>
-          <a class="box" href={a("rsb-photo-nodes")}>
-            <span class="name">rsb-photo-nodes</span>
+          <a class="box" href={a("lab-photo-nodes")}>
+            <span class="name">lab-photo-nodes</span>
           </a>
-          <a class="box" href={a("rsb-photo-recipe")}>
-            <span class="name">rsb-photo-recipe</span>
+          <a class="box" href={a("lab-photo-recipe")}>
+            <span class="name">lab-photo-recipe</span>
           </a>
-          <a class="box" href={a("rsb-photo-session")}>
-            <span class="name">rsb-photo-session</span>
+          <a class="box" href={a("lab-photo-session")}>
+            <span class="name">lab-photo-session</span>
           </a>
-          <a class="box" href={a("photo-ops")}>
-            <span class="name">photo-ops</span>
+          <a class="box" href={a("lab-photo-ops")}>
+            <span class="name">lab-photo-ops</span>
           </a>
         </div>
       </div>
@@ -121,8 +121,8 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
       <div class="band">
         <p class="band-label">Universal base — unrelated roots permitted; currently one</p>
         <div class="row">
-          <a class="box" href={a("rsb-core")}>
-            <span class="name">rsb-core</span>
+          <a class="box" href={a("lab-core")}>
+            <span class="name">lab-core</span>
             <span class="role">root: trait Fail · Chain · Rendered · mod report · annex pattern available (zero occupants)</span>
           </a>
         </div>
@@ -133,8 +133,8 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
       <div class="band">
         <p class="band-label">The contract</p>
         <div class="row">
-          <a class="box" href={a("rsb-shell")}>
-            <span class="name">rsb-shell — the pump</span>
+          <a class="box" href={a("lab-shell")}>
+            <span class="name">lab-shell — the pump</span>
             <span class="role">View&lt;Ctx&gt; · Operator&lt;Ctx&gt; + registry + typed args · pointer capture + step machinery · opaque topics · job door · phase hook · six-phase order</span>
           </a>
         </div>
@@ -145,35 +145,35 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
       <div class="band">
         <p class="band-label">Realizations · the recipe family · domains</p>
         <div class="row stack">
-          <a class="box" href={a("rsb-shell-sync")}>
-            <span class="name">rsb-shell-sync</span>
+          <a class="box" href={a("lab-shell-sync")}>
+            <span class="name">lab-shell-sync</span>
             <span class="role">winit / wgpu · loop · areas · workers · dispatch + tripwire</span>
           </a>
           <div class="cluster">
             <p class="cluster-label">Recipe family · data tier — references no shell crate</p>
             <div class="row">
-              <a class="box" href={a("graph-engine")}>
-                <span class="name">graph engine</span>
-                <span class="role">name TBD · generations · restore-diff-mark · all operations</span>
+              <a class="box" href={a("lab-graph")}>
+                <span class="name">lab-graph</span>
+                <span class="role">generations · restore-diff-mark · all operations</span>
               </a>
-              <a class="box" href={a("rsb-pixel")}>
-                <span class="name">rsb-pixel</span>
+              <a class="box" href={a("lab-pixel")}>
+                <span class="name">lab-pixel</span>
                 <span class="role">value types · the payload seam</span>
               </a>
-              <a class="box" href={a("rsb-photo-nodes")}>
-                <span class="name">rsb-photo-nodes</span>
+              <a class="box" href={a("lab-photo-nodes")}>
+                <span class="name">lab-photo-nodes</span>
                 <span class="role">develop/ · composite/ · transition/ — one crate, three peer modules</span>
               </a>
-              <a class="box" href={a("rsb-photo-recipe")}>
-                <span class="name">rsb-photo-recipe</span>
+              <a class="box" href={a("lab-photo-recipe")}>
+                <span class="name">lab-photo-recipe</span>
                 <span class="role">the authored model</span>
               </a>
-              <a class="box" href={a("rsb-photo-session")}>
-                <span class="name">rsb-photo-session</span>
+              <a class="box" href={a("lab-photo-session")}>
+                <span class="name">lab-photo-session</span>
                 <span class="role">ephemera + undo instance</span>
               </a>
-              <a class="box" href={a("photo-ops")}>
-                <span class="name">photo-ops</span>
+              <a class="box" href={a("lab-photo-ops")}>
+                <span class="name">lab-photo-ops</span>
                 <span class="role">verbs · headless</span>
               </a>
             </div>
@@ -181,9 +181,9 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
           <div class="cluster domains">
             <p class="cluster-label">Domains</p>
             <div class="row">
-              <a class="box" href={a("rsb-raw")}><span class="name">rsb-raw</span></a>
-              <a class="box" href={a("rsb-post")}><span class="name">rsb-post</span></a>
-              <a class="box" href={a("rsb-color")}><span class="name">rsb-color</span></a>
+              <a class="box" href={a("lab-raw")}><span class="name">lab-raw</span></a>
+              <a class="box" href={a("lab-post")}><span class="name">lab-post</span></a>
+              <a class="box" href={a("lab-color")}><span class="name">lab-color</span></a>
             </div>
           </div>
         </div>
@@ -208,7 +208,7 @@ const a = (anchor: string) => `${hrefBase}#${anchor}`;
           </a>
           <a class="box" href={a("ctx-report-stream")}>
             <span class="name">report stream</span>
-            <span class="role">from rsb-core</span>
+            <span class="role">from lab-core</span>
           </a>
           <a class="box dimmed" href={a("ctx-extensions")}>
             <span class="name">… app extensions</span>
