@@ -58,7 +58,8 @@ A view is `Box<dyn View<Ctx>>` with nothing further to carry: erasing the target
 behind `&mut dyn Painter` hides the implementation's frame lifetime, so no view
 signature acquires a backend lifetime or a second type parameter. Editors are
 written once against the painter and run unchanged on any shell that implements
-it. wgpu is confined to the synchronous shell crate, where ADR-0004 expects it.
+it. wgpu is confined to the synchronous shell crate, where the workspace
+boundary discipline expects it.
 
 The honest cost is that a contract crate now holds a drawing opinion. A vocabulary
 can drift toward a renderer, and this one lives in the worst place for churn. The
@@ -96,6 +97,16 @@ parameter option or reintroduces `Any`. It may still serve *inside* the
 synchronous shell; it is rejected as the contract shape.
 
 **Naming `wgpu::RenderPass` in the contract.** The simplest signature and the one
-rejected outright: it welds the contract to wgpu, violates ADR-0004 boundary
-discipline, and forecloses the web implementation the contract exists to keep
-possible.
+rejected outright: it welds the contract to wgpu, violates the workspace
+boundary discipline, and forecloses the web implementation the contract exists to
+keep possible.
+
+---
+
+Drives standards: none yet _(a view-contract standard may follow on acceptance)_
+
+Related decisions: the workspace boundary discipline — a contract crate may not
+name its own backend — is the load-bearing premise here; it is recorded in the
+dependency-and-module planning and not yet a draft in this corpus.
+[ADR-0001](https://adrs.rsb.sh/adr/0001-base-coding-standard/)
+(base coding standard) is the corpus root.
